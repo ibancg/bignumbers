@@ -2,26 +2,26 @@
 #ifndef __CONFIG_H_
 #define __CONFIG_H_
 
-// Archivo de configuración para BIGNUM.
+// Configuration file.
 
 #include <math.h>
 
-// modo depuración.
+// debug mode.
 #define DEBUG
 
-// precisión en coma flotante con la que trabaja el programa.
-#define FLT double  
+// floating point precission
+#define flt_t double  
 
-#define NCIF  1024  // número de cifras del formato.
-#define NFRC  1000  // número de cifras fracionarias.
+#define N_DIGITS		2048  // number of digits in the format.
+#define N_FRAC_DIGITS	2000  // number of fractional digits.
 
-typedef unsigned char TBC; // Tipo Base Cifra.
+typedef unsigned char bcd_t; // BCD digit type.
 
-// Configuración avanzada. (conmutadores de algoritmos).
+// advanced configuration (algorithm switches).
 
-#define ALGORITMO_MUL_FFT
-#define ALGORITMO_DIV_INVERSO
-#define ALGORITMO_SQRT_NEWTON_INVERSO
-#define ALGORITMO_SQRT4_NEWTON_INVERSO
+#define FFT_MUL_ALGORITHM
+#define INVERSE_DIV_ALGORITHM
+#define INVERSE_NEWTON_SQRT_ALGORITHM
+#define INVERSE_NEWTON_SQRT4_ALGORITHM
 
 #endif

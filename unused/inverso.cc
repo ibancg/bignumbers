@@ -38,19 +38,19 @@ void Inverso(BigNumber &A, BigNumber &x)
   static BigNumber x1, x2;
   static BigNumber DOS("2");
   int              i;
-  FLT              d;
+  flt_t              d;
   int              ipc = 0; // índice primera cifra.
   bool             stop;
 
   x.isPositive = A.isPositive;
-  memset(x.C, 0, NCIF*sizeof(TBC)); // limpiamos B.
+  memset(x.digits, 0, N_DIGITS*sizeof(bcd_t)); // limpiamos B.
 
   // cuento el número de cifras enteras.
   /*  for (i = NCIF - 1; (i >= 0) && !ipc; i--) if (A.C[i]) ipc = i;
       x.C[NFRC - (ipc - NFRC) - 1] = 1;*/
 
-  bn2Flt(A, d);
-  flt2Bn(1.0/d, x);
+  d = bigNumber2Flt(A);
+  flt2BigNumber(1.0/d, x);
 
   for (int k = 0;; k++) {
     
@@ -58,8 +58,8 @@ void Inverso(BigNumber &A, BigNumber &x)
     sub(DOS, x1, x2);
     mul(x, x2, x1);
 
-    for (stop = true, i = 0; (i < NCIF) && stop; i++) 
-      if (x.C[i] != x1.C[i]) stop = false;
+    for (stop = true, i = 0; (i < N_DIGITS) && stop; i++) 
+      if (x.digits[i] != x1.digits[i]) stop = false;
 
     if (stop) break;
 
@@ -99,19 +99,19 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
   }
 
   /* Si el orden de magnitud del número es n, empiezo a iterar en 10^(n/2)*/
-  for (i = NCIF - 1, n = -1; (i >= 0) && (n == -1); i--)
-    if (A.C[i]) n = i;
+  for (i = N_DIGITS - 1, n = -1; (i >= 0) && (n == -1); i--)
+    if (A.digits[i]) n = i;
 
   xo.isPositive = true;
-  memset(xo.C, 0, NCIF*sizeof(TBC));
+  memset(xo.digits, 0, N_DIGITS*sizeof(bcd_t));
 
   if (n == -1) { // es un 0
     copy(xo, x);
     return;
   }
 
-  n = NFRC - (n - NFRC + 1)/2;
-  xo.C[n] = 1;
+  n = N_FRAC_DIGITS - (n - N_FRAC_DIGITS + 1)/2;
+  xo.digits[n] = 1;
      
   //xo.Mostrar();
   //  getchar();
@@ -127,8 +127,8 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
     xo.isPositive = !xo.isPositive;
 
     // Si se repite el iterante, paramos.
-    for (stop = true, i = 0; (i < NCIF) && stop; i++) 
-      if (x.C[i] != xo.C[i]) stop = false;
+    for (stop = true, i = 0; (i < N_DIGITS) && stop; i++) 
+      if (x.digits[i] != xo.digits[i]) stop = false;
     
     printf("SQRT : iteracion = %i\n", k);
     x.show();
@@ -155,9 +155,9 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
   
   // ajustamos (debido a esta resta) hasta donde tengamos que hacerlo.
   for (i = 0;; i++) {
-    x.C[i] -= c;
-    c = (((char)x.C[i]) < 0) ? 1 : 0;
+    x.digits[i] -= c;
+    c = (((char)x.digits[i]) < 0) ? 1 : 0;
     if (!c) break; // si no hay acarreo salgo.
-    x.C[i] += 10*c;
+    x.digits[i] += 10*c;
   }
 }

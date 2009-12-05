@@ -10,10 +10,9 @@
 BigNumber::BigNumber() {
 }
 
-
 // Constructs a BN by parsing the string representation
-BigNumber::BigNumber(char *s) {
-	memset(C, 0, NCIF * sizeof(TBC));
+BigNumber::BigNumber(const char *s) {
+	memset(digits, 0, N_DIGITS * sizeof(bcd_t));
 
 	// if the first char is the minus sign, the number is negative
 	isPositive = (*s != '-');
@@ -28,33 +27,31 @@ BigNumber::BigNumber(char *s) {
 	int exponent = ((e) ? strtol(&e[1], &bp, 0) : 0);
 
 	char *dot = strchr(s, '.');
-	int pp = ((dot) ? (dot - s) : ls); // posición del punto.
-	int i;
+	unsigned int dot_index = ((dot) ? (dot - s) : ls); // dot index.
+	unsigned int i;
 
-	for (i = 0; i < pp; i++)
-		C[NFRC + pp - i - 1 + exponent] = s[i] - 48;
+	for (i = 0; i < dot_index; i++)
+		digits[N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i] - 48;
 
-	if (pp != ls)
-		for (i = pp + 1; i < ls; i++)
-			C[NFRC - (i - pp) + exponent] = s[i] - 48;
+	if (dot_index != ls)
+		for (i = dot_index + 1; i < ls; i++)
+			digits[N_FRAC_DIGITS - (i - dot_index) + exponent] = s[i] - 48;
 }
-
 
 void BigNumber::show() {
 	int i, j;
 	unsigned short int nc = 0;
-	unsigned long int c, ch;
 	bool z = true;
 
 	if (!isPositive)
 		printf("-");
 
-	for (i = NCIF - 1; i >= NFRC; i--) {
+	for (i = N_DIGITS - 1; i >= N_FRAC_DIGITS; i--) {
 
-		if (z && (C[i]))
+		if (z && (digits[i]))
 			z = false;
 		if (!z) {
-			printf("%c", C[i] + 48);
+			printf("%c", digits[i] + 48);
 			nc++;
 		}
 	}
@@ -64,66 +61,60 @@ void BigNumber::show() {
 		nc++;
 	}
 
-	for (j = 0; j < NFRC; j++)
-		if (C[j])
+	for (j = 0; j < N_FRAC_DIGITS; j++)
+		if (digits[j])
 			break;
 
 	// decimal part.
-	if (j != NFRC)
+	if (j != N_FRAC_DIGITS)
 		printf(".");
-	for (i = NFRC - 1; i >= j; i--) {
-		printf("%c", C[i] + 48);
+	for (i = N_FRAC_DIGITS - 1; i >= j; i--) {
+		printf("%c", digits[i] + 48);
 		nc++;
 	}
 
 	printf("::(%u digits)\n", nc);
 }
 
-
 void shl(BigNumber &A, BigNumber &B, int d) {
 	if (d >= 0) {
-		memcpy(B.C + d, A.C, NCIF - d * sizeof(TBC));
-		memset(B.C, 0, d * sizeof(TBC));
+		memcpy(B.digits + d, A.digits, N_DIGITS - d * sizeof(bcd_t));
+		memset(B.digits, 0, d * sizeof(bcd_t));
 	} else {
-		memcpy(B.C, A.C - d, NCIF + d * sizeof(TBC));
-		memset(&B.C[NCIF + d], 0, -d * sizeof(TBC));
+		memcpy(B.digits, A.digits - d, N_DIGITS + d * sizeof(bcd_t));
+		memset(&B.digits[N_DIGITS + d], 0, -d * sizeof(bcd_t));
 	}
 
 	B.isPositive = A.isPositive;
 }
 
-
 void shr(BigNumber &A, BigNumber &B, int d) {
 	shl(A, B, -d);
 }
 
-
 void copy(BigNumber &A, BigNumber &B) {
-	memcpy(B.C, A.C, NCIF * sizeof(TBC));
+	memcpy(B.digits, A.digits, N_DIGITS * sizeof(bcd_t));
 	B.isPositive = A.isPositive;
 }
 
-
 int findFirstNonZeroDigitIndex(BigNumber &A) {
-	for (register int i = NCIF - 1; i >= 0; i--)
-		if (A.C[i])
+	for (register int i = N_DIGITS - 1; i >= 0; i--)
+		if (A.digits[i])
 			return i;
 	return -1; // special case: zero
 }
 
-
 bool equals(BigNumber &A, BigNumber &B) {
-	for (register int i = 0; i < NCIF; i++)
-		if (A.C[i] != B.C[i])
+	for (register int i = 0; i < N_DIGITS; i++)
+		if (A.digits[i] != B.digits[i])
 			return false;
 	return true;
 }
 
-
 int compare(BigNumber &A, BigNumber &B) {
-	for (register int i = NCIF - 1; i >= 0; i--)
-		if (A.C[i] != B.C[i])
-			return (NCIF - i);
+	for (register int i = N_DIGITS - 1; i >= 0; i--)
+		if (A.digits[i] != B.digits[i])
+			return (N_DIGITS - i);
 
-	return NCIF;
+	return N_DIGITS;
 }
