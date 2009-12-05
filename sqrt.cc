@@ -12,7 +12,7 @@ using namespace std;
 
 // Cálculo de la raíz cuadrada por el método de Newton. (F(x) = x^2 - 1/A).
 // A y x NO solapables.
-void SqrtBN(BigNumber &A, BigNumber &x)
+void sqrt(BigNumber &A, BigNumber &x)
 {
   static BigNumber    xo;
   static BigNumber    _1p2("0.5");
@@ -23,44 +23,44 @@ void SqrtBN(BigNumber &A, BigNumber &x)
   cout.flush();
 # endif
 
-  if (!A.positivo) {
+  if (!A.isPositive) {
     printf("ERROR: raíz compleja.\n");
     exit(255);
   }
 
-  xo.positivo = true;
+  xo.isPositive = true;
   memset(xo.C, 0, NCIF*sizeof(TBC));
   
   // Si el orden de magnitud del número es n, empiezo a iterar en 10^(-n/2)
-  xo.C[NFRC - (IndicePC(A) - NFRC + 1)/2] = 1;
+  xo.C[NFRC - (findFirstNonZeroDigitIndex(A) - NFRC + 1)/2] = 1;
   /* FLT d
      BN2FLT(A, d);
      FLT2BN(sqrt(d), xo);*/
   
   for (int k = 0;; k++) {
     
-    TraBN(xo, x);
-    MulBN(x, x, xo);
-    MulBN(xo, A, xo);             // A*x^2
-    RestaBN(xo, TRES, xo, false); // (A*x^2 - 3)
-    MulBN(_1p2, xo, xo);          // 0.5*(A*x^2 - 3)
-    MulBN(x, xo, xo);             // 0.5*x*(A*x^2 - 3)
-    xo.positivo = !xo.positivo;
+    copy(xo, x);
+    mul(x, x, xo);
+    mul(xo, A, xo);             // A*x^2
+    sub(xo, TRES, xo, false); // (A*x^2 - 3)
+    mul(_1p2, xo, xo);          // 0.5*(A*x^2 - 3)
+    mul(x, xo, xo);             // 0.5*x*(A*x^2 - 3)
+    xo.isPositive = !xo.isPositive;
 
 #   ifdef DEBUG
     cout << '.';
     cout.flush();
 #   endif
     
-    if (Compara2BN(x, xo) >= (NCIF - 2)) break; // Si se repite el iterante, paramos.
+    if (compare(x, xo) >= (NCIF - 2)) break; // Si se repite el iterante, paramos.
   }
   
 # ifdef DEBUG
   cout << endl;
 # endif
 
-  xo.positivo = true; // por si converge a la solución negativa.
-  MulBN(A, xo, x); // el método ha convergido al inverso.
+  xo.isPositive = true; // por si converge a la solución negativa.
+  mul(A, xo, x); // el método ha convergido al inverso.
 }
 
 #else
@@ -68,7 +68,7 @@ void SqrtBN(BigNumber &A, BigNumber &x)
 
 // Cálculo de la raíz cuadrada por el método de Newton. (F(x) = x^2 - A).
 // A y x NO solapables.
-void SqrtBN(BigNumber &A, BigNumber &x)
+void sqrt(BigNumber &A, BigNumber &x)
 {
   static BigNumber    x2, Fx, DFx, xo;
 
@@ -77,36 +77,36 @@ void SqrtBN(BigNumber &A, BigNumber &x)
   cout.flush();
 # endif
 
-  if (!A.positivo) {
+  if (!A.isPositive) {
     printf("ERROR: raíz compleja.\n");
     exit(255);
   }
 
-  xo.positivo = true;
+  xo.isPositive = true;
   memset(xo.C, 0, NCIF*sizeof(TBC));
   
   /* Si el orden de magnitud del número es n, empiezo a iterar en 10^(n/2)*/
-  xo.C[NFRC + (IndicePC(A) - NFRC)/2] = 1;
+  xo.C[NFRC + (findFirstNonZeroDigitIndex(A) - NFRC)/2] = 1;
   /*  FLT d;
       BN2FLT(A, d);
       FLT2BN(pow(d, 0.5), xo); */
   
   for (;;) {
 	
-    TraBN(xo, x);
-    MulBN(x, x, x2);
-    RestaBN(x2, A, Fx, false); // F(x) = x^2 - A
+    copy(xo, x);
+    mul(x, x, x2);
+    sub(x2, A, Fx, false); // F(x) = x^2 - A
 	 
-    SumaBN(x, x, DFx);  // F'(x) = 2*x
-    DivBN(Fx, DFx, x2); // F(x)/F'(x) 
-    RestaBN(x, x2, xo); // x - F(x)/F'(x) 
+    add(x, x, DFx);  // F'(x) = 2*x
+    div(Fx, DFx, x2); // F(x)/F'(x) 
+    sub(x, x2, xo); // x - F(x)/F'(x) 
 
 #   ifdef DEBUG
     cout << '.';
     cout.flush();
 #   endif
     
-    if (ComparaBN(x, xo)) break; // Si se repite el iterante, paramos.
+    if (equals(x, xo)) break; // Si se repite el iterante, paramos.
   }
   
 # ifdef DEBUG
@@ -114,10 +114,10 @@ void SqrtBN(BigNumber &A, BigNumber &x)
 # endif
 
   // Por si el método de Newton me converge a la solución negativa
-  x.positivo = true;
+  x.isPositive = true;
   
   // Si F(x) <= 0 -> x^2 <= A, podemos salir. si no, hay que restar 1.
-  if (!Fx.positivo) return; // F(x) <= 0. (signo forzado en 0).
+  if (!Fx.isPositive) return; // F(x) <= 0. (signo forzado en 0).
 
   char c = 1;
   
@@ -138,13 +138,13 @@ void SqrtBN(BigNumber &A, BigNumber &x)
 
 // Cálculo de la raíz cuarta por el método de Newton. (F(x) = x^4 - 1/A).
 // A y x NO solapables.
-void Sqrt4BN(BigNumber &A, BigNumber &x)
+void sqrt4(BigNumber &A, BigNumber &x)
 {
   static BigNumber    xo;
   static BigNumber    _1p4("0.25");
   static BigNumber    CINCO("5");
 
-  if (!A.positivo) {
+  if (!A.isPositive) {
     printf("ERROR: raíz compleja.\n");
     exit(255);
   }
@@ -154,40 +154,40 @@ void Sqrt4BN(BigNumber &A, BigNumber &x)
   cout.flush();
 # endif
 
-  xo.positivo = true;
+  xo.isPositive = true;
   memset(xo.C, 0, NCIF*sizeof(TBC));
       
   /* Si el orden de magnitud del número es n, empiezo a iterar en 10^(n/4)*/
-  xo.C[NFRC - (IndicePC(A) - NFRC + 1)/4] = 1;
+  xo.C[NFRC - (findFirstNonZeroDigitIndex(A) - NFRC + 1)/4] = 1;
   /* FLT d;
      BN2FLT(A, d);
      FLT2BN(pow(d, 0.25), xo);*/
 
   for (int k = 0;; k++) {
     
-    TraBN(xo, x);
-    MulBN(x, x, xo);
-    MulBN(xo, xo, xo);             // x^4
-    MulBN(xo, A, xo);              // A*x^4
-    RestaBN(xo, CINCO, xo, false); // (A*x^2 - 5)
-    MulBN(_1p4, xo, xo);           // 0.25*(A*x^4 - 5)
-    MulBN(x, xo, xo);              // 0.25*x*(A*x^4 - 5)
-    xo.positivo = !xo.positivo;
+    copy(xo, x);
+    mul(x, x, xo);
+    mul(xo, xo, xo);             // x^4
+    mul(xo, A, xo);              // A*x^4
+    sub(xo, CINCO, xo, false); // (A*x^2 - 5)
+    mul(_1p4, xo, xo);           // 0.25*(A*x^4 - 5)
+    mul(x, xo, xo);              // 0.25*x*(A*x^4 - 5)
+    xo.isPositive = !xo.isPositive;
 
 #   ifdef DEBUG
     cout << '.';
     cout.flush();
 #   endif
     
-    if (Compara2BN(x, xo) >= (NCIF - 2)) break; // Si se repite el iterante, paramos.
+    if (compare(x, xo) >= (NCIF - 2)) break; // Si se repite el iterante, paramos.
   }
   
 # ifdef DEBUG
   cout << endl;
 # endif
 
-  xo.positivo = true; // por si converge a la solución negativa.
-  InvBN(xo, x);
+  xo.isPositive = true; // por si converge a la solución negativa.
+  inv(xo, x);
 }
 
 #else 
@@ -195,45 +195,45 @@ void Sqrt4BN(BigNumber &A, BigNumber &x)
 
 // Cálculo de la raíz cuarta por el método de Newton. (F(x) = x^4 - A).
 // A y x NO solapables.
-void Sqrt4BN(BigNumber &A, BigNumber &x)
+void sqrt4(BigNumber &A, BigNumber &x)
 {
   static BigNumber    x1, x2, Fx, DFx, xo;
  
-  if (!A.positivo) {
+  if (!A.isPositive) {
     printf("ERROR: raíz compleja.\n");
     exit(255);
   }
 
-  xo.positivo = true;
+  xo.isPositive = true;
   memset(xo.C, 0, NCIF*sizeof(TBC));
 
   /* Si el orden de magnitud del n£mero es n, empiezo a iterar en 10^(n/4)*/
-  xo.C[NFRC + (IndicePC(A) - NFRC)/4] = 1;
+  xo.C[NFRC + (findFirstNonZeroDigitIndex(A) - NFRC)/4] = 1;
   /*  FLT d;
       BN2FLT(A, d);
       FLT2BN(pow(d, 0.25), xo); */
 
   for (;;) {
 
-    TraBN(xo, x);
-    MulBN(x, x, x1);  // x^2
-    MulBN(x, x1, x1); // x^3
-    MulBN(x, x1, x2); // x^4
-    RestaBN(x2, A, Fx, false); // F(x) = x^4 - A
+    copy(xo, x);
+    mul(x, x, x1);  // x^2
+    mul(x, x1, x1); // x^3
+    mul(x, x1, x2); // x^4
+    sub(x2, A, Fx, false); // F(x) = x^4 - A
 	 
-    SumaBN(x1, x1, x1);  // 2*x^3
-    SumaBN(x1, x1, DFx); // F'(x) = 4*x^3
-    DivBN(Fx, DFx, x2); // F(x)/F'(x) 
-    RestaBN(x, x2, xo); // x - F(x)/F'(x) 
+    add(x1, x1, x1);  // 2*x^3
+    add(x1, x1, DFx); // F'(x) = 4*x^3
+    div(Fx, DFx, x2); // F(x)/F'(x) 
+    sub(x, x2, xo); // x - F(x)/F'(x) 
 	
-    if (ComparaBN(x, xo)) break; // Si se repite el iterante, paramos.
+    if (equals(x, xo)) break; // Si se repite el iterante, paramos.
   }
   
   // Por si el método de Newton me converge a la solución negativa
-  x.positivo = true;
+  x.isPositive = true;
   
   // Si F(x) <= 0 -> x^2 <= A, podemos salir. si no, hay que restar 1.
-  if (!Fx.positivo) return; // F(x) <= 0. (signo forzado en 0).
+  if (!Fx.isPositive) return; // F(x) <= 0. (signo forzado en 0).
 
   char c = 1;
   

@@ -1,122 +1,128 @@
-
 #include <string.h>
 
 #include "bignum.h"
 
-/* Suma. Todos se pueden solapar. ej: SumaBN(x, x, x);
- en caso de que el resultado sea 0, el signo se fuerza con piz */
-void SumaBN(BigNumber &A, BigNumber &B, BigNumber &C, bool piz)
-{
-  int  i;
-  char r;
-  char c = 0; // acarreo.
+// Addition. Simple implementation.
+void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
+	register int i;
+	char r;
+	char carry = 0;
 
-  if (!(A.positivo ^ B.positivo)) { // mismo signo.
-	   
-    for (i = 0; i < NCIF; i++) {
+	if (A.isPositive == B.isPositive) {
 
-      r = c + A.C[i] + B.C[i];
-      c = (r > 9) ? 1 : 0;
-      C.C[i] = (r - 10*c);  // r % 10
-    }
-	 
-    C.positivo = A.positivo; // = B.positivo
-    return;
-  }
-   
-  // Distinto signo.
-  BigNumber *M, *m; // número de mayor y menor módulo.
+		// same sign case
 
-  M = NULL;
-  
-  for (i = NCIF - 1; i >= 0; i--) {
-	   
-    if (A.C[i] == B.C[i]) continue;
-	   
-    if (A.C[i] > B.C[i]) {
-      M = &A;
-      m = &B;
-    } else {
-      M = &B;
-      m = &A;   
-    }
-    break;
-  }
+		for (i = 0; i < NCIF; i++) {
+			r = carry + A.C[i] + B.C[i];
+			carry = (r > 9) ? 1 : 0;
+			C.C[i] = (r - 10 * carry); // r % 10
+		}
 
-  if (!M) { // son iguales.	  
-    memset(C.C, 0, NCIF*sizeof(TBC));
-    C.positivo = piz;
-    return;
-  }  	  
-  
-  // Al de mayor módulo le resto el de menor.   
-  for (i = 0; i < NCIF; i++) {
+		C.isPositive = A.isPositive;
 
-    r = M->C[i] - (m->C[i] + c);
-    c = (r < 0) ? 1 : 0;
-    C.C[i] = (r + 10*c);
-  }
+	} else {
 
-  // Si el positivo es el de mayor módulo el resultado tiene signo positivo.
-  C.positivo = ((A.positivo) && (M == &A)) || ((B.positivo) && (M == &B));
+		// different sign case
+
+		BigNumber* M; // higher module BN
+		BigNumber* m; // lower module BN
+
+		M = NULL;
+
+		for (i = NCIF - 1; i >= 0; i--) {
+
+			if (A.C[i] == B.C[i])
+				continue;
+
+			if (A.C[i] > B.C[i]) {
+				M = &A;
+				m = &B;
+			} else {
+				M = &B;
+				m = &A;
+			}
+			break;
+		}
+
+		if (!M) { // the both numbers have the same module, so the result is 0
+			memset(C.C, 0, NCIF * sizeof(TBC));
+			C.isPositive = sign;
+			return;
+		}
+
+		// substracts the lower module number from the higher module one
+		for (i = 0; i < NCIF; i++) {
+			r = M->C[i] - (m->C[i] + carry);
+			carry = (r < 0) ? 1 : 0;
+			C.C[i] = (r + 10 * carry);
+		}
+
+		// if the number with higher module is positive, then the result is also
+		// positive.
+		C.isPositive = ((A.isPositive) && (M == &A)) || ((B.isPositive) && (M
+				== &B));
+	}
 }
 
-//------------------------------------------------------------------------
+// Substraction. SImple implementation.
+void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
+	register int i;
+	char r;
+	char carry = 0;
 
-// Resta. Todos se pueden solapar.
-void RestaBN(BigNumber &A, BigNumber &B, BigNumber &C, bool piz)
-{
-  int  i;
-  char r;
-  char c = 0; // acarreo.
+	if (A.isPositive != B.isPositive) {
 
-  if (!(A.positivo ^ !B.positivo)) { // mismo signo.
-	   
-    for (i = 0; i < NCIF; i++) {
+		// different sign case
 
-      r = c + A.C[i] + B.C[i];
-      c = (r > 9) ? 1 : 0;
-      C.C[i] = (r - 10*c);  // r % 10
-    }
-	 
-    C.positivo = A.positivo; // = B.positivo
-    return;
-  }
-   
-  // Distinto signo.
-  BigNumber *M, *m; // número de mayor y menor módulo.
+		for (i = 0; i < NCIF; i++) {
 
-  M = NULL;
-  
-  for (i = NCIF - 1; i >= 0; i--) {
-	   
-    if (A.C[i] == B.C[i]) continue;
-	   
-    if (A.C[i] > B.C[i]) {
-      M = &A;
-      m = &B;
-    } else {
-      M = &B;
-      m = &A;   
-    }
-    break;
-  }
+			r = carry + A.C[i] + B.C[i];
+			carry = (r > 9) ? 1 : 0;
+			C.C[i] = (r - 10 * carry); // r % 10
+		}
 
-  if (!M) { // son iguales.
-	  
-    memset(C.C, 0, NCIF*sizeof(TBC));
-    C.positivo = piz;
-    return;
-  }  	  
-  
-  // Al de mayor módulo le resto el de menor.   
-  for (i = 0; i < NCIF; i++) {
+		C.isPositive = A.isPositive;
+	} else {
 
-    r = M->C[i] - (m->C[i] + c);
-    c = (r < 0) ? 1 : 0;
-    C.C[i] = (r + 10*c);
-  }
+		// same sign case
 
-  // Si el positivo es el de mayor módulo el resultado tiene signo positivo.
-  C.positivo = ((A.positivo) && (M == &A)) || ((!B.positivo) && (M == &B));
+		BigNumber* M; // higher module BN
+		BigNumber* m; // lower module BN
+
+		M = NULL;
+
+		for (i = NCIF - 1; i >= 0; i--) {
+
+			if (A.C[i] == B.C[i])
+				continue;
+
+			if (A.C[i] > B.C[i]) {
+				M = &A;
+				m = &B;
+			} else {
+				M = &B;
+				m = &A;
+			}
+			break;
+		}
+
+		if (!M) { // the both numbers have the same module, so the result is 0
+			memset(C.C, 0, NCIF * sizeof(TBC));
+			C.isPositive = piz;
+			return;
+		}
+
+		// substracts the lower module number from the higher module one
+		for (i = 0; i < NCIF; i++) {
+
+			r = M->C[i] - (m->C[i] + carry);
+			carry = (r < 0) ? 1 : 0;
+			C.C[i] = (r + 10 * carry);
+		}
+
+		// if the number with higher module is positive, then the result is also
+		// positive
+		C.isPositive = ((A.isPositive) && (M == &A)) || ((!B.isPositive) && (M
+				== &B));
+	}
 }

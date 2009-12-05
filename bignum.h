@@ -2,22 +2,10 @@
 #ifndef __BIGNUMBER_H_
 #define __BIGNUMBER_H_
 
-/*
---------------------------------------------------------------------------------
-   Formato numérico y aritmética asociada de números "arbitrariamente" grandes
- con convenio de punto fijo. 
- 
-   Se ha escogido un sistema BCD con ajuste decimal en cada dígito interno,
- así cada cifra interna codificará 1 d¡gito decimal. La aritmética binaria
- natural se rechaza por las complicaciones que presenta a la hora de visua-
- lizar el número (algoritmo de orden n^2).
- 
-   En cuanto al signo se usa el sistema signo y módulo.
-
---------------------------------------------------------------------------------   
- (ñ) 2000 Ibán Cereijo Graña
---------------------------------------------------------------------------------   
-*/
+// "Arbitrarily" big numbers with fixed-point arithmetic.
+//
+// A BCD system with sign and modulus representation and decimal adjustment
+// was chosen, so each figure represents a decimal digit.
 
 #include "config.h"
 
@@ -26,37 +14,70 @@ class BigNumber {
  public:
 
   TBC   C[NCIF];
-  bool  positivo; // flag positivo/!negativo
+  bool  isPositive; // positive/!negative flag
   
-  // Constructores.
+  // Constructors.
+
+  // Creates an empty bignumber
   BigNumber();
+
+  // Creates a bignumber from a string, example: N = BigNumber("-1786.059e36");
   BigNumber(char *);
   
-  // Visualización.
-  void Mostrar();
+  // Visualization.
+  void show();
 
-  // conversiones
-  friend void FLT2BN   (FLT, BigNumber &);
-  friend void BN2FLT   (BigNumber &, FLT &);
+  // Conversions between bignumbers and floats
+  friend void flt2Bn   (FLT flt, BigNumber& bn);
+  friend void bn2Flt   (BigNumber& bn, FLT& flt);
 
-  friend bool ComparaBN (BigNumber &, BigNumber &);
-  friend int  Compara2BN(BigNumber &, BigNumber &);
+  // Tests if two BNs are equal
+  friend bool equals (BigNumber& A, BigNumber& B);
+
+  // Compares two BNs and returns the number of coincident digits
+  friend int  compare(BigNumber& A, BigNumber& B);
   
-  // índice de la primera cifra no nula.
-  friend int  IndicePC (BigNumber &);
+  // First non-zero digit index.
+  friend int  findFirstNonZeroDigitIndex (BigNumber& A);
 
-  // Operaciones.
-  friend void SumaBN   (BigNumber &, BigNumber &, BigNumber &, bool = true);
-  friend void RestaBN  (BigNumber &, BigNumber &, BigNumber &, bool = true);
-  friend void MulBN    (BigNumber &, BigNumber &, BigNumber &);
-  friend void SqrBN    (BigNumber &, BigNumber &);
-  friend void InvBN    (BigNumber &, BigNumber &);
-  friend void DivBN    (BigNumber &, BigNumber &, BigNumber &);
-  friend void ShlBN    (BigNumber &, BigNumber &, int);
-  friend void ShrBN    (BigNumber &, BigNumber &, int);
-  friend void TraBN    (BigNumber &, BigNumber &);
-  friend void SqrtBN   (BigNumber &, BigNumber &);
-  friend void Sqrt4BN  (BigNumber &, BigNumber &);
+  // Copies a BN into another
+  friend void copy  (BigNumber& A, BigNumber& B);
+
+  // Operations.
+
+  // Computes C = A + B. If the result is zero, the sign can be explicitly set.
+  // A, B and C are overlappables.
+  friend void add	(BigNumber& A, BigNumber& B, BigNumber& C, bool sign = true);
+
+  // Computes C = A - B. If the result is zero, the sign can be explicitly set.
+  // A, B and C are overlappables.
+  friend void sub	(BigNumber& A, BigNumber& B, BigNumber& C, bool sign = true);
+
+  // Computes C = A*B
+  friend void mul   (BigNumber& A, BigNumber& B, BigNumber& C);
+
+  // Computes B = A^2
+  friend void sqr   (BigNumber& A, BigNumber& B);
+
+  // Computes B = 1/A
+  friend void inv   (BigNumber& A, BigNumber& B);
+
+  // Computes C = A/B
+  friend void div   (BigNumber& A, BigNumber& B, BigNumber& C);
+
+  // Performs a shift left operation of n digits. The result will be B = A*10^n
+  // A and B are overlappables
+  friend void shl   (BigNumber& A, BigNumber& B, int n);
+
+  // Performs a shift left operation of n digits. The result will be B = A/10^n
+  // A and B are overlappables
+  friend void shr   (BigNumber& A, BigNumber& B, int n);
+
+  // Computes the square root
+  friend void sqrt  (BigNumber& A, BigNumber& B);
+
+  // Computes the quartic root
+  friend void sqrt4 (BigNumber& A, BigNumber& B);
 };
 
 #endif
