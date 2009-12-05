@@ -21,7 +21,7 @@ void main() {
   Y = BigNumber();
     
   Inverso(X, Z);
-  Z.Mostrar();
+  Z.show();
   /*		DivBN(X, Y, Z);
 		Z.Mostrar();*/
 
@@ -42,31 +42,31 @@ void Inverso(BigNumber &A, BigNumber &x)
   int              ipc = 0; // índice primera cifra.
   bool             stop;
 
-  x.positivo = A.positivo;
+  x.isPositive = A.isPositive;
   memset(x.C, 0, NCIF*sizeof(TBC)); // limpiamos B.
 
   // cuento el número de cifras enteras.
   /*  for (i = NCIF - 1; (i >= 0) && !ipc; i--) if (A.C[i]) ipc = i;
       x.C[NFRC - (ipc - NFRC) - 1] = 1;*/
 
-  BN2FLT(A, d);
-  FLT2BN(1.0/d, x);
+  bn2Flt(A, d);
+  flt2Bn(1.0/d, x);
 
   for (int k = 0;; k++) {
     
-    MulBN(A, x, x1);
-    RestaBN(DOS, x1, x2);
-    MulBN(x, x2, x1);
+    mul(A, x, x1);
+    sub(DOS, x1, x2);
+    mul(x, x2, x1);
 
     for (stop = true, i = 0; (i < NCIF) && stop; i++) 
       if (x.C[i] != x1.C[i]) stop = false;
 
     if (stop) break;
 
-    TraBN(x1, x);
+    copy(x1, x);
 
     printf("INVERSO : iteración %i\n", k);
-    x.Mostrar();
+    x.show();
   }
 
 }
@@ -93,7 +93,7 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
   __X += 10;
 #endif
 
-  if (!A.positivo) {
+  if (!A.isPositive) {
     printf("ERROR: raíz compleja\n");
     exit(255);
   }
@@ -102,11 +102,11 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
   for (i = NCIF - 1, n = -1; (i >= 0) && (n == -1); i--)
     if (A.C[i]) n = i;
 
-  xo.positivo = true;
+  xo.isPositive = true;
   memset(xo.C, 0, NCIF*sizeof(TBC));
 
   if (n == -1) { // es un 0
-    TraBN(xo, x);
+    copy(xo, x);
     return;
   }
 
@@ -118,24 +118,24 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
 
   for (int k = 0;; k++) {
 
-    TraBN(xo, x);
-    MulBN(x, x, x2);
-    MulBN(x2, A, Fx);              // A*x^2
-    RestaBN(Fx, TRES, DFx, false); // (A*x^2 - 3)
-    MulBN(_1p2, DFx, Fx);          // 0.5*(A*x^2 - 3)
-    MulBN(x, Fx, xo);              // 0.5*x*(A*x^2 - 3)
-    xo.positivo = !xo.positivo;
+    copy(xo, x);
+    mul(x, x, x2);
+    mul(x2, A, Fx);              // A*x^2
+    sub(Fx, TRES, DFx, false); // (A*x^2 - 3)
+    mul(_1p2, DFx, Fx);          // 0.5*(A*x^2 - 3)
+    mul(x, Fx, xo);              // 0.5*x*(A*x^2 - 3)
+    xo.isPositive = !xo.isPositive;
 
     // Si se repite el iterante, paramos.
     for (stop = true, i = 0; (i < NCIF) && stop; i++) 
       if (x.C[i] != xo.C[i]) stop = false;
     
     printf("SQRT : iteracion = %i\n", k);
-    x.Mostrar();
+    x.show();
     if (stop) break;
   }
   
-  MulBN(A, xo, x);
+  mul(A, xo, x);
 
 #ifdef DEBUG
   gotoxy(__X, 1);
@@ -146,10 +146,10 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
 #endif
 
   // Por si el método de Newton me converge a la solución negativa
-  x.positivo = true;
+  x.isPositive = true;
   
   // Si F(x) <= 0 -> x^2 <= A, podemos salir. si no, hay que restar 1.
-  if (!Fx.positivo) return; // F(x) <= 0. (signo forzado en 0).
+  if (!Fx.isPositive) return; // F(x) <= 0. (signo forzado en 0).
 
   char c = 1;
   

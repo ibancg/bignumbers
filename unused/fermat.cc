@@ -16,21 +16,21 @@ void main() {
    
   printf("Calculando...\n");
    
-  TraBN(X1, AX1);
-  TraBN(X2, AX2);
-  TraBN(X3, AX3);
+  copy(X1, AX1);
+  copy(X2, AX2);
+  copy(X3, AX3);
  
   for (int i = 1; i < 12; i++) {
 
-    MulBN(AX1, X1, AX);
-    TraBN(AX, AX1);
-    MulBN(AX2, X2, AX);
-    TraBN(AX, AX2);
-    MulBN(AX3, X3, AX);
-    TraBN(AX, AX3);
+    mul(AX1, X1, AX);
+    copy(AX, AX1);
+    mul(AX2, X2, AX);
+    copy(AX, AX2);
+    mul(AX3, X3, AX);
+    copy(AX, AX3);
   }   
    
-  SumaBN(AX1, AX2, AX);
-  AX.Mostrar();
-  AX3.Mostrar();
+  add(AX1, AX2, AX);
+  AX.show();
+  AX3.show();
 }

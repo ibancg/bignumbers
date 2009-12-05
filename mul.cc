@@ -24,7 +24,7 @@
 
 /* Algoritmo típico.
  Todos se pueden solapar. ej : MulBN(X, X, X) */
-void MulBN(BigNumber &A, BigNumber &B, BigNumber &C)
+void mul(BigNumber &A, BigNumber &B, BigNumber &C)
 {
   int               i, j;
   unsigned long int r, c;
@@ -48,7 +48,7 @@ void MulBN(BigNumber &A, BigNumber &B, BigNumber &C)
     }
   }
   
-  C.positivo = !(A.positivo ^ B.positivo);
+  C.isPositive = !(A.isPositive ^ B.isPositive);
   memcpy(C.C, &R[NFRC], NCIF*sizeof(TBC));
 }
 
@@ -105,7 +105,7 @@ void MulBN(BigNumber &A, BigNumber &B, BigNumber &C)
 #include "FFT.h"
 
 // Implementación del algoritmo. Todos solapables. p.ej : MulBN(X, X, X)
-void MulBN(BigNumber &A, BigNumber &B, BigNumber &C)
+void mul(BigNumber &A, BigNumber &B, BigNumber &C)
 {
   static CPX         BC1[NCIF << 1];
   static CPX         BC2[NCIF << 1];
@@ -162,7 +162,7 @@ void MulBN(BigNumber &A, BigNumber &B, BigNumber &C)
     if (i >= NFRC) C.C[i - NFRC] = (ci - 10*c); // ci % 10
   }
    
-  C.positivo = !(A.positivo ^ B.positivo);   
+  C.isPositive = !(A.isPositive ^ B.isPositive);   
 }
 
 #endif

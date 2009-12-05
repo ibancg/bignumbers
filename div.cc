@@ -8,7 +8,7 @@
 using namespace std;
 
 // Cálculo del inverso por el método de Newton.
-void InvBN(BigNumber &A, BigNumber &B)
+void inv(BigNumber &A, BigNumber &B)
 {
   static BigNumber x1, x2;
   static BigNumber DOS("2");
@@ -22,7 +22,7 @@ void InvBN(BigNumber &A, BigNumber &B)
   cout.flush();
 #endif
 
-  B.positivo = A.positivo;
+  B.isPositive = A.isPositive;
   memset(B.C, 0, NCIF*sizeof(TBC)); // limpiamos C.
 
   // cuento el número de cifras enteras.
@@ -31,18 +31,18 @@ void InvBN(BigNumber &A, BigNumber &B)
   
   for (int k = 0;; k++) {
     
-    MulBN(A, B, x1);
-    RestaBN(DOS, x1, x2);
-    MulBN(B, x2, x1);
+    mul(A, B, x1);
+    sub(DOS, x1, x2);
+    mul(B, x2, x1);
 
 # ifdef DEBUG
     cout << '.';
     cout.flush();
 #endif
 
-    if (ComparaBN(B, x1)) break;
+    if (equals(B, x1)) break;
 
-    TraBN(x1, B);
+    copy(x1, B);
   }
 
 # ifdef DEBUG
@@ -53,17 +53,17 @@ void InvBN(BigNumber &A, BigNumber &B)
 
 #ifdef ALGORITMO_DIV_INVERSO
 
-void DivBN(BigNumber &A, BigNumber &B, BigNumber &C)
+void div(BigNumber &A, BigNumber &B, BigNumber &C)
 {
-  InvBN(B, C);
-  MulBN(A, C, C);
+  inv(B, C);
+  mul(A, C, C);
 }
 
 #else
 //-------------------------------------------------------------
 
 // El método del cole. solapable A con B o C.
-void DivBN(BigNumber &A, BigNumber &B, BigNumber &C)
+void div(BigNumber &A, BigNumber &B, BigNumber &C)
 {
   int                i, j, n;
   int                NCA = 0, NCB = 0, NCAB;
@@ -87,7 +87,7 @@ void DivBN(BigNumber &A, BigNumber &B, BigNumber &C)
   }
   
   memset(C.C, 0, NCIF*sizeof(TBC));
-  C.positivo = !(A.positivo ^ B.positivo);
+  C.isPositive = !(A.isPositive ^ B.isPositive);
 
   if (NCB > NCA) return;
   

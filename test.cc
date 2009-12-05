@@ -37,40 +37,40 @@ int main() {
 
   BigNumber aux1;
 
-  SqrtBN(_1p2, b);  // b = 1/sqrt(2)
+  sqrt(_1p2, b);  // b = 1/sqrt(2)
 
   for (k = 0; k < 20; k++) {
 
 
     //    if (ComparaBN(a, b)) break;
     printf("iteración %i\n", k);
-    RestaBN(a, b, aux1);
+    sub(a, b, aux1);
     //    aux1.Mostrar();
 
-    TraBN(a, y);           // y = a
-    SumaBN(a, b, aux1);
-    MulBN(aux1, _1p2, a);  // a = (a + b)*0.5
-    MulBN(b, y, aux1);
-    SqrtBN(aux1, b);       // b = sqrt(b*y)
+    copy(a, y);           // y = a
+    add(a, b, aux1);
+    mul(aux1, _1p2, a);  // a = (a + b)*0.5
+    mul(b, y, aux1);
+    sqrt(aux1, b);       // b = sqrt(b*y)
     /*    printf("SQRT ~= ");
 	  b.Mostrar();*/
 
-    RestaBN(y, a, aux1);
-    MulBN(aux1, aux1, aux1);
-    MulBN(x, aux1, aux1);
-    RestaBN(t, aux1, t);   // t = t - x*(y - a)^2
-    SumaBN(x, x, x);       // x = 2*x;
+    sub(y, a, aux1);
+    mul(aux1, aux1, aux1);
+    mul(x, aux1, aux1);
+    sub(t, aux1, t);   // t = t - x*(y - a)^2
+    add(x, x, x);       // x = 2*x;
 
-    if (ComparaBN(a, b)) break;
+    if (equals(a, b)) break;
   }
   
-  SumaBN(t, t, t);
-  SumaBN(t, t, t); // t = 4*t
-  SumaBN(a, b, x);
-  MulBN(x, x, x);
-  DivBN(x, t, aux1); // pi = (a + b)^2/(4*t)
+  add(t, t, t);
+  add(t, t, t); // t = 4*t
+  add(a, b, x);
+  mul(x, x, x);
+  div(x, t, aux1); // pi = (a + b)^2/(4*t)
 
   printf("PI ~= ");
-  aux1.Mostrar();
+  aux1.show();
   printf("%u iteraciones para encontrar %u decimales de PI.\n", k, NFRC);
 }

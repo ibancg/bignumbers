@@ -11,7 +11,7 @@
 #define MAX_EXP     200
 
 
-void FLT2BN(FLT x, BigNumber &X)
+void flt2Bn(FLT x, BigNumber &X)
 {
   static char buffer[40];
   char        *s = buffer;
@@ -19,12 +19,12 @@ void FLT2BN(FLT x, BigNumber &X)
   sprintf(s, "%20.20f", x);
   memset(X.C, 0, NCIF*sizeof(TBC));
   
-  X.positivo = (*s != '-');
+  X.isPositive = (*s != '-');
   
   unsigned int ls;
   int          i, pp;
 
-  if (!X.positivo) s++;
+  if (!X.isPositive) s++;
     
   char *e = strchr(s, 'e');
   ls = ((e) ? (e - s) : strlen(s));
@@ -49,7 +49,7 @@ void FLT2BN(FLT x, BigNumber &X)
 
 //-----------------------------------------------
 
-void BN2FLT(BigNumber &X, FLT &x)
+void bn2Flt(BigNumber &X, FLT &x)
 {
   register int i;
   int          n;

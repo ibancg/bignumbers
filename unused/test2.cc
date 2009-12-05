@@ -20,11 +20,11 @@ void main() {
 	X.positivo = true;
 	Y.positivo = true;*/
 
-	X.Mostrar();	
-	Y.Mostrar();	
+	X.show();	
+	Y.show();	
 	printf("Multiplicando...\n");
-	for (i = 0; i < 30; i++) MulBN(X, Y, Z);
-	Z.Mostrar();	
+	for (i = 0; i < 30; i++) mul(X, Y, Z);
+	Z.show();	
 /*	printf("Dividiendo...\n");
 	for (i = 0; i < 100; i++) DivBN(Z, Y, X);*/
 	//	X.Mostrar();
