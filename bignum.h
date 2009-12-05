@@ -1,83 +1,80 @@
-
 #ifndef __BIGNUMBER_H_
 #define __BIGNUMBER_H_
 
 // "Arbitrarily" big numbers with fixed-point arithmetic.
 //
 // A BCD system with sign and modulus representation and decimal adjustment
-// was chosen, so each figure represents a decimal digit.
+// has been chosen, so each figure represents a decimal digit.
 
 #include "config.h"
 
 class BigNumber {
 
- public:
+public:
 
-  TBC   C[NCIF];
-  bool  isPositive; // positive/!negative flag
-  
-  // Constructors.
+	bcd_t digits[N_DIGITS];
+	bool isPositive; // positive/!negative flag
 
-  // Creates an empty bignumber
-  BigNumber();
+	// Constructors.
 
-  // Creates a bignumber from a string, example: N = BigNumber("-1786.059e36");
-  BigNumber(char *);
-  
-  // Visualization.
-  void show();
+	// Creates an empty bignumber
+	BigNumber();
 
-  // Conversions between bignumbers and floats
-  friend void flt2Bn   (FLT flt, BigNumber& bn);
-  friend void bn2Flt   (BigNumber& bn, FLT& flt);
+	// Creates a bignumber from a string, example: N = BigNumber("-1786.059e36");
+	BigNumber(const char *);
 
-  // Tests if two BNs are equal
-  friend bool equals (BigNumber& A, BigNumber& B);
+	// Visualization.
+	void show();
 
-  // Compares two BNs and returns the number of coincident digits
-  friend int  compare(BigNumber& A, BigNumber& B);
-  
-  // First non-zero digit index.
-  friend int  findFirstNonZeroDigitIndex (BigNumber& A);
+	// Conversions between bignumbers and floats
+	friend void flt2BigNumber(flt_t flt, BigNumber& bn);
+	friend flt_t bigNumber2Flt(BigNumber& bn);
 
-  // Copies a BN into another
-  friend void copy  (BigNumber& A, BigNumber& B);
+	// Tests if two BNs are equal
+	friend bool equals(BigNumber& A, BigNumber& B);
 
-  // Operations.
+	// Compares two BNs and returns the number of coincident digits
+	friend int compare(BigNumber& A, BigNumber& B);
 
-  // Computes C = A + B. If the result is zero, the sign can be explicitly set.
-  // A, B and C are overlappables.
-  friend void add	(BigNumber& A, BigNumber& B, BigNumber& C, bool sign = true);
+	// First non-zero digit index.
+	friend int findFirstNonZeroDigitIndex(BigNumber& A);
 
-  // Computes C = A - B. If the result is zero, the sign can be explicitly set.
-  // A, B and C are overlappables.
-  friend void sub	(BigNumber& A, BigNumber& B, BigNumber& C, bool sign = true);
+	// Copies a BN into another
+	friend void copy(BigNumber& A, BigNumber& B);
 
-  // Computes C = A*B
-  friend void mul   (BigNumber& A, BigNumber& B, BigNumber& C);
+	// Operations.
 
-  // Computes B = A^2
-  friend void sqr   (BigNumber& A, BigNumber& B);
+	// Computes C = A + B. If the result is zero, the sign can be explicitly set.
+	// A, B and C are overlappables.
+	friend void add(BigNumber& A, BigNumber& B, BigNumber& C, bool sign = true);
 
-  // Computes B = 1/A
-  friend void inv   (BigNumber& A, BigNumber& B);
+	// Computes C = A - B. If the result is zero, the sign can be explicitly set.
+	// A, B and C are overlappables.
+	friend void sub(BigNumber& A, BigNumber& B, BigNumber& C, bool sign = true);
 
-  // Computes C = A/B
-  friend void div   (BigNumber& A, BigNumber& B, BigNumber& C);
+	// Computes C = A*B
+	// A, B and C are overlappables
+	friend void mul(BigNumber& A, BigNumber& B, BigNumber& C);
 
-  // Performs a shift left operation of n digits. The result will be B = A*10^n
-  // A and B are overlappables
-  friend void shl   (BigNumber& A, BigNumber& B, int n);
+	// Computes the inverse of A, B = 1/A
+	friend void inv(BigNumber& A, BigNumber& B);
 
-  // Performs a shift left operation of n digits. The result will be B = A/10^n
-  // A and B are overlappables
-  friend void shr   (BigNumber& A, BigNumber& B, int n);
+	// Computes C = A/B
+	friend void div(BigNumber& A, BigNumber& B, BigNumber& C);
 
-  // Computes the square root
-  friend void sqrt  (BigNumber& A, BigNumber& B);
+	// Performs a shift left operation of n digits. The result will be B = A*10^n
+	// A and B are overlappables
+	friend void shl(BigNumber& A, BigNumber& B, int n);
 
-  // Computes the quartic root
-  friend void sqrt4 (BigNumber& A, BigNumber& B);
+	// Performs a shift left operation of n digits. The result will be B = A/10^n
+	// A and B are overlappables
+	friend void shr(BigNumber& A, BigNumber& B, int n);
+
+	// Computes the square root
+	friend void sqrt(BigNumber& A, BigNumber& B);
+
+	// Computes the quartic root
+	friend void sqrt4(BigNumber& A, BigNumber& B);
 };
 
 #endif

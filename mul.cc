@@ -1,168 +1,150 @@
-
 #include <string.h>
 
-/*
---------------------------------------------------------------------------------
- (ñ) 2000 Ibán Cereijo Graña
---------------------------------------------------------------------------------
-
-  Algoritmos de multiplicación
-
-
-          AAAA.AAAA   El resultado de una multiplicación tiene el doble de
-	* BBBB.BBBB  dígitos que los operandos. En un sistema de punto fijo
-  -----------------  como este se perderán tantos dígitos como cifras decima-
-  CCCCCCCC.CCCCCCCC  les se hayan asignado (por abajo). Por arriba se eliminan
-    		     dígitos, pero no se considera pérdida de información ya
-		     que si alguno de ellos fuera distinto de 0, debió haber
-		     ocurrido un error de desbordamiento.
-*/
+// Multiplication algorithms
+//
+//          AAAA.AAAA  The multiplication result has the double of digits than
+//		  * BBBB.BBBB  the operands. In a fixed-point system like this, as
+//  -----------------  digits as assigned decimal figures will be lost (by the
+//  CCCCCCCC.CCCCCCCC  least significant side). In the most signiticant side,
+//					   other digits are also dropped, but this is not considered
+//					   as a loss of information, since if any of them were
+//					   different to 0, an overflow error may happened.
 
 #include "bignum.h"
 
-#ifndef ALGORITMO_MUL_FFT
+#ifndef FFT_MUL_ALGORITHM
 
-/* Algoritmo típico.
- Todos se pueden solapar. ej : MulBN(X, X, X) */
-void mul(BigNumber &A, BigNumber &B, BigNumber &C)
+// Classical algorithm.
+void mul(BigNumber &A, BigNumber &B, BigNumber &digits)
 {
-  int               i, j;
-  unsigned long int r, c;
-  static TBC        R[NCIF + NFRC];
+	int i, j;
+	unsigned long int r, c;
+	static bcd_t R[N_DIGITS + N_FRAC_DIGITS];
 
+	memset(R, 0, (N_DIGITS + N_FRAC_DIGITS)*sizeof(bcd_t));
 
-  memset(R, 0, (NCIF + NFRC)*sizeof(TBC));
-  
-  for (i = 0; i < NCIF; i++) {
-    for (j = 0, c = 0; (j < NCIF) && ((j + i) < (NCIF + NFRC)); j++) {
-      
-      r = R[j + i] + c + A.C[j]*B.C[i];
-      c = (r/10);
-      R[j + i] = (r - 10*c);
-    }
+	for (i = 0; i < N_DIGITS; i++) {
+		for (j = 0, c = 0; (j < N_DIGITS) && ((j + i) < (N_DIGITS + N_FRAC_DIGITS)); j++) {
 
-    for (; (j + i) < (NCIF + NFRC); j++) { // ajusto lo que me queda.
-      r = R[j + i] + c;
-      c = (r/10);
-      R[j + i] = (r - 10*c);
-    }
-  }
-  
-  C.isPositive = !(A.isPositive ^ B.isPositive);
-  memcpy(C.C, &R[NFRC], NCIF*sizeof(TBC));
+			r = R[j + i] + c + A.digits[j]*B.digits[i];
+			c = (r/10);
+			R[j + i] = (r - 10*c);
+		}
+
+		// decimal adjustment
+		for (; (j + i) < (N_DIGITS + N_FRAC_DIGITS); j++) {
+			r = R[j + i] + c;
+			c = (r/10);
+			R[j + i] = (r - 10*c);
+		}
+	}
+
+	digits.isPositive = !(A.isPositive ^ B.isPositive);
+	memcpy(digits.digits, &R[N_FRAC_DIGITS], N_DIGITS*sizeof(bcd_t));
 }
-
 
 #else
 
-/*
-------------------------------------------------------------------------------
+// The former algorithm has order of n^2 time complexity, so it presents a
+// scalability problem for big numbers.
+//
+// Let us consider A and B sequences as polynomial coefficients. Then the
+// convolution operation of both signals will represent the polynomial
+// product. Knowing that none of the coefficients can be greather than their
+// base, if we do a decimal adjustement consisting in propagate the carry
+// values towards higher weight digits, the final sequence will be the
+// multiplication of both numbers. Thus, the multiplication can be performed
+// with a convolution operation with BCD adjustment.
+//
+// A convolution operation has also order of n^2 time complexity, but is well
+// known that it's transformed in an elementwise multiplication in frequency
+// domain. So, we can transform the signals, multiply them in frequency, and
+// apply an inverse transform.
+//
+// An efficient DFT calculus can be achieved with a FFT (Fast Fourier Transform)
+// algorithm, which reduces the complexity from O(n^2) to O(n*log2(n)).
+//
+// Optimization:
+//
+// The DFT signal will be complex even if the input signal does not, and we know
+// that the input signals (numbers to be multiplied) are real signals. Thus, we
+// can build an unique singal containing the information of both signals in
+// their real and imaginary parts.
+//
+// x[n] = x1 + i*x2[n] --> FFT --> X[n]
+//
+// Using FFT properties, we can extract:
+//
+// X1[n] =     1/2*(X[n] + conj(X[-n mod N]))
+// X2[n] = 1/(2*i)*(X[n] - conj(X[-n mod N]))
+//
+// So, we need to compute only one FFT instead of 2.
 
-  El problema del algoritmo arriba propuesto es que tiene orden N^2. Para
- números grandes es muy costoso.
-
-  Si consideramos las secuencias A y B como los coeficientes de dos polino-
- mios, la convolución de estas señales representará su multiplicación. Sa-
- biendo que ningún coeficiente debe ser mayor o igual que la base del formato
- (en este caso 10), si hacemos un ajuste propagando los acarreos hacia pesos
- mayores, la secuencia resultante será la multiplicación de los dos NUMEROS
- anteriores. La multiplicación se puede hacer pues mediante una convolución
- con ajuste BCD.
-
-  Ahora bien, un algoritmo de convolución tiene orden N^2, con lo cual no ga-
- namos nada (de hecho perder¡amos tiempo).
-
-  Sabemos que una convolución se transforma en una multiplicación muestra por
- muestra en dominio frecuencial. Así, podemos transformar las señales (DFT),
- multiplicarlas en frecuencia muestra a muestra y aplicar una transformación
- inversa.
-
-  Calcular una DFT (Discrete Fourier Tranform) se haría normalmente mediante
- un algoritmo de orden N^2, pero aplicando un algoritmo FFT (Fast Fourier
- Transform), el orden del algoritmo se reduce a N*log2(N), con lo que resulta
- mucho mejor para N grande.
-
-  Optimizando:
-
-  La FFT de una señal será compleja aunque no lo sea la señal de entrada, y
- sabemos que las dos señales de entrada (números a multiplicar) son señales
- reales. Así, podemos construir una sola señal que contenga la información de
- las dos señales en su parte real y en su parte imaginaria.
-
-    x[n] = x1 + i*x2[n] --> Calculamos su FFT --> X[n]
-
-  Podemos extraer, usando las propiedades de la FFT:
-
-	X1[n] =     1/2*(X[n] + conj(X[-n mod N]))
-	X2[n] = 1/(2*i)*(X[n] - conj(X[-n mod N]))
-
-  De esta forma sólo es necesario hacer una FFT y no 2.
-
-------------------------------------------------------------------------------
-*/
 
 #include "complex.h"
-#include "FFT.h"
+#include "fft.h"
 
-// Implementación del algoritmo. Todos solapables. p.ej : MulBN(X, X, X)
-void mul(BigNumber &A, BigNumber &B, BigNumber &C)
-{
-  static CPX         BC1[NCIF << 1];
-  static CPX         BC2[NCIF << 1];
-  register int       i;
-  CPX                Xi, Xmi, X1, X2, X3;
+// FFT-based multiplication imlpementation
+void mul(BigNumber &A, BigNumber &B, BigNumber &C) {
+	static Complex BC1[N_DIGITS << 1];
+	static Complex BC2[N_DIGITS << 1];
+	register int i;
+	Complex Xi, Xmi, X1, X2, X3;
 
+	// step 1: building a complex signal with the information of both signals.
+	for (i = 0; i < N_DIGITS; i++) {
+		BC1[i].r = A.digits[i]; // real part
+		BC1[i].i = B.digits[i]; // imaginary part
+	}
 
-  // paso 1: construyo una señal compleja que contenga información de las 2.
-  for (i = 0; i < NCIF; i++) {
-    BC1[i].r = A.C[i]; // parte real
-    BC1[i].i = B.C[i]; // parte imaginaria.
-  }
-  memset(&BC1[NCIF], 0, NCIF*sizeof(CPX)); // limpio la parte alta.
+	// cleans the higher section.
+	memset(&BC1[N_DIGITS], 0, N_DIGITS * sizeof(Complex));
 
-  // paso 2: la transformo.
-  FFT(BC1, BC2, (NCIF << 1));
-  
-  // paso 3: multiplico en frecuencia.
-  for (i = 0; i < (NCIF << 1); i++) {
+	// step 2: transform.
+	fft(BC1, BC2, (N_DIGITS << 1));
 
-    // hay que extraer las transformadas individuales de la trans. conjunta.
-    Xi  = BC2[i];
-    Xmi = BC2[(-i) & ((NCIF << 1) - 1)];
-    Xmi.i = -Xmi.i; // conjugado
+	// step 3: element-wise multiplication in frequency domain.
+	for (i = 0; i < (N_DIGITS << 1); i++) {
 
-    X1.r = Xi.r + Xmi.r;
-    X1.i = Xi.i + Xmi.i; // X1 = Xi + Xmi
-    X2.r = Xi.r - Xmi.r;
-    X2.i = Xi.i - Xmi.i; // X2 = Xi - Xmi
+		// we need to extract the individual transformed signals from the
+		// composited one.
+		Xi = BC2[i];
+		Xmi = BC2[(-i) & ((N_DIGITS << 1) - 1)];
+		Xmi.i = -Xmi.i; // conjugate
 
-    // ahora multiplico muestra por muestra.
-    X3.r = X1.r*X2.r - X1.i*X2.i;
-    X3.i = X1.r*X2.i + X1.i*X2.r; // X3 = X1*X2;
+		X1.r = Xi.r + Xmi.r;
+		X1.i = Xi.i + Xmi.i; // X1 = Xi + Xmi
+		X2.r = Xi.r - Xmi.r;
+		X2.i = Xi.i - Xmi.i; // X2 = Xi - Xmi
 
-    BC1[i].r =  0.25*X3.i;
-    BC1[i].i = -0.25*X3.r;
-  }
+		// now let us multiply sample by sample.
+		X3.r = X1.r * X2.r - X1.i * X2.i;
+		X3.i = X1.r * X2.i + X1.i * X2.r; // X3 = X1*X2;
 
-  // paso 4: destransformo la señal.
-  IFFT(BC1, BC2, (NCIF << 1));
+		BC1[i].r = 0.25 * X3.i;
+		BC1[i].i = -0.25 * X3.r;
+	}
 
-  unsigned long int  c, ci;
-  FLT                x;
+	// step 4: inverse transform.
+	ifft(BC1, BC2, (N_DIGITS << 1));
 
-  // paso 5: limpio y ajusto la señal.
-  for (i = 0, c = 0; i < NCIF + NFRC; i++) {
+	unsigned long int c, ci;
+	flt_t x;
 
-    x = BC2[i].r; // quito la parte imaginaria.
+	// step 5: cleaning and BCD adjust.
+	for (i = 0, c = 0; i < N_DIGITS + N_FRAC_DIGITS; i++) {
 
-    if ((x - floor(x)) < 0.5) ci = (unsigned long int)(c + floor(x));
-    else ci = (unsigned long int)(c + ceil(x)); // redondeo.
+		x = BC2[i].r; // drops imaginary part.
 
-    c = (ci/10);                                // propago el acarreo
-    if (i >= NFRC) C.C[i - NFRC] = (ci - 10*c); // ci % 10
-  }
-   
-  C.isPositive = !(A.isPositive ^ B.isPositive);   
+		// rounding
+		ci = (unsigned long int) (c + round(x));
+
+		c = (ci / 10); // carry propagation
+		if (i >= N_FRAC_DIGITS)
+			C.digits[i - N_FRAC_DIGITS] = (ci - 10 * c); // ci % 10
+	}
+
+	C.isPositive = !(A.isPositive ^ B.isPositive);
 }
 
 #endif

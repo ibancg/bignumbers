@@ -6,7 +6,7 @@
 PROYECTO  = bignum
 FUENTES   = *.cc
 
-C_FLAGS   = -O2 -g $(INCDIR)
+C_FLAGS   = -Wall -O2 -g $(INCDIR)
 LIBRERIAS = -lm -lstdc++
 COMPILAR  = g++ $(C_FLAGS) -c $< -o $@
 ENLAZAR   = g++ -o $(PROYECTO) $(OBJS) $(LIBRERIAS)

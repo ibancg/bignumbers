@@ -38,10 +38,10 @@ void main() {
     //    gotoxy(1, 4);
 
     // paramos cuando dos iterantes consecutivos coinciden.
-    for (stop = true, j = NCIF - 1; stop && (j >= 0); j--)
-      if (pio.C[j] != pi.C[j]) stop = false;
+    for (stop = true, j = N_DIGITS - 1; stop && (j >= 0); j--)
+      if (pio.digits[j] != pi.digits[j]) stop = false;
 
-    printf("iteración %uª : %u decimales encontrados\n", i + 1, NFRC - j - 1);
+    printf("iteración %uª : %u decimales encontrados\n", i + 1, N_FRAC_DIGITS - j - 1);
 
     if (stop) break;
     copy(pio, pi);
@@ -79,7 +79,7 @@ void main() {
   
   printf("PI ~= ");
   pi.show();
-  printf("%u iteraciones para encontrar %u cifras decimales de PI.\n", i, NFRC);
+  printf("%u iteraciones para encontrar %u cifras decimales de PI.\n", i, N_FRAC_DIGITS);
       
 }
 
@@ -110,19 +110,19 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
   }
 
   /* Si el orden de magnitud del número es n, empiezo a iterar en 10^(n/2)*/
-  for (i = NCIF - 1, n = -1; (i >= 0) && (n == -1); i--)
-    if (A.C[i]) n = i;
+  for (i = N_DIGITS - 1, n = -1; (i >= 0) && (n == -1); i--)
+    if (A.digits[i]) n = i;
 
   xo.isPositive = true;
-  memset(xo.C, 0, NCIF*sizeof(TBC));
+  memset(xo.digits, 0, N_DIGITS*sizeof(bcd_t));
 
   if (n == -1) { // es un 0
     copy(xo, x);
     return;
   }
 
-  n = NFRC - (n - NFRC + 1)/2;
-  xo.C[n] = 1;
+  n = N_FRAC_DIGITS - (n - N_FRAC_DIGITS + 1)/2;
+  xo.digits[n] = 1;
      
   //xo.Mostrar();
   //  getchar();
@@ -138,8 +138,8 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
     xo.isPositive = !xo.isPositive;
 
     // Si se repite el iterante, paramos.
-    for (stop = true, i = 0; (i < NCIF) && stop; i++) 
-      if (x.C[i] != xo.C[i]) stop = false;
+    for (stop = true, i = 0; (i < N_DIGITS) && stop; i++) 
+      if (x.digits[i] != xo.digits[i]) stop = false;
     
     //    printf("SQRT : iteracion = %i\n", k);
     if (stop) break;
@@ -165,9 +165,9 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
   
   // ajustamos (debido a esta resta) hasta donde tengamos que hacerlo.
   for (i = 0;; i++) {
-    x.C[i] -= c;
-    c = (((char)x.C[i]) < 0) ? 1 : 0;
+    x.digits[i] -= c;
+    c = (((char)x.digits[i]) < 0) ? 1 : 0;
     if (!c) break; // si no hay acarreo salgo.
-    x.C[i] += 10*c;
+    x.digits[i] += 10*c;
   }
 }

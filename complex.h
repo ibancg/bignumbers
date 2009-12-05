@@ -1,40 +1,18 @@
-
 #ifndef _COMPLEX_H_
 #define _COMPLEX_H_
 
-
 #include <math.h>
 
-#ifndef FLT
-#define FLT double
+#ifndef flt_t
+#define flt_t double
 #endif
 
-// Aritmetica compleja sencilla.
-class CPX {
+// Complex number.
 
- public:
+class Complex {
 
-   FLT r, i;
-
-
-   friend void SumaCPX(CPX A, CPX B, CPX &R)
-   {
-      R.r = A.r + B.r;
-      R.i = A.i + B.i;
-   }
-
-   friend void RestaCPX(CPX A, CPX B, CPX &R)
-   {
-      R.r = A.r - B.r;
-      R.i = A.i - B.i;
-   }
-
-   friend void MulCPX(CPX A, CPX B, CPX &R)
-   {
-      R.r = A.r*B.r - A.i*B.i;
-      R.i = A.i*B.r + A.r*B.i;
-   }
+public:
+	flt_t r, i;
 };
-
 
 #endif

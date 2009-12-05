@@ -12,10 +12,10 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 
 		// same sign case
 
-		for (i = 0; i < NCIF; i++) {
-			r = carry + A.C[i] + B.C[i];
+		for (i = 0; i < N_DIGITS; i++) {
+			r = carry + A.digits[i] + B.digits[i];
 			carry = (r > 9) ? 1 : 0;
-			C.C[i] = (r - 10 * carry); // r % 10
+			C.digits[i] = (r - 10 * carry); // r % 10
 		}
 
 		C.isPositive = A.isPositive;
@@ -29,12 +29,12 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 
 		M = NULL;
 
-		for (i = NCIF - 1; i >= 0; i--) {
+		for (i = N_DIGITS - 1; i >= 0; i--) {
 
-			if (A.C[i] == B.C[i])
+			if (A.digits[i] == B.digits[i])
 				continue;
 
-			if (A.C[i] > B.C[i]) {
+			if (A.digits[i] > B.digits[i]) {
 				M = &A;
 				m = &B;
 			} else {
@@ -44,17 +44,17 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 			break;
 		}
 
-		if (!M) { // the both numbers have the same module, so the result is 0
-			memset(C.C, 0, NCIF * sizeof(TBC));
+		if (!M) { //  both numbers have the same module, so the result is 0
+			memset(C.digits, 0, N_DIGITS * sizeof(bcd_t));
 			C.isPositive = sign;
 			return;
 		}
 
 		// substracts the lower module number from the higher module one
-		for (i = 0; i < NCIF; i++) {
-			r = M->C[i] - (m->C[i] + carry);
+		for (i = 0; i < N_DIGITS; i++) {
+			r = M->digits[i] - (m->digits[i] + carry);
 			carry = (r < 0) ? 1 : 0;
-			C.C[i] = (r + 10 * carry);
+			C.digits[i] = (r + 10 * carry);
 		}
 
 		// if the number with higher module is positive, then the result is also
@@ -64,7 +64,7 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 	}
 }
 
-// Substraction. SImple implementation.
+// Substraction. Simple implementation.
 void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
 	register int i;
 	char r;
@@ -74,11 +74,11 @@ void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
 
 		// different sign case
 
-		for (i = 0; i < NCIF; i++) {
+		for (i = 0; i < N_DIGITS; i++) {
 
-			r = carry + A.C[i] + B.C[i];
+			r = carry + A.digits[i] + B.digits[i];
 			carry = (r > 9) ? 1 : 0;
-			C.C[i] = (r - 10 * carry); // r % 10
+			C.digits[i] = (r - 10 * carry); // r % 10
 		}
 
 		C.isPositive = A.isPositive;
@@ -91,12 +91,12 @@ void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
 
 		M = NULL;
 
-		for (i = NCIF - 1; i >= 0; i--) {
+		for (i = N_DIGITS - 1; i >= 0; i--) {
 
-			if (A.C[i] == B.C[i])
+			if (A.digits[i] == B.digits[i])
 				continue;
 
-			if (A.C[i] > B.C[i]) {
+			if (A.digits[i] > B.digits[i]) {
 				M = &A;
 				m = &B;
 			} else {
@@ -106,18 +106,18 @@ void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
 			break;
 		}
 
-		if (!M) { // the both numbers have the same module, so the result is 0
-			memset(C.C, 0, NCIF * sizeof(TBC));
+		if (!M) { // both numbers have the same module, so the result is 0
+			memset(C.digits, 0, N_DIGITS * sizeof(bcd_t));
 			C.isPositive = piz;
 			return;
 		}
 
 		// substracts the lower module number from the higher module one
-		for (i = 0; i < NCIF; i++) {
+		for (i = 0; i < N_DIGITS; i++) {
 
-			r = M->C[i] - (m->C[i] + carry);
+			r = M->digits[i] - (m->digits[i] + carry);
 			carry = (r < 0) ? 1 : 0;
-			C.C[i] = (r + 10 * carry);
+			C.digits[i] = (r + 10 * carry);
 		}
 
 		// if the number with higher module is positive, then the result is also
