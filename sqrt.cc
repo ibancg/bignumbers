@@ -9,12 +9,14 @@ using namespace std;
 
 #ifdef INVERSE_NEWTON_SQRT_ALGORITHM
 
-// Cálculo de la raíz cuadrada por el método de Newton. (F(x) = x^2 - 1/A).
-// A y x NO solapables.
+// Square root computation by Newton's method. (F(x) = x^2 - 1/A).  This method
+// converges to the inverse of the square root and doesn't need to compute any
+// division in the time-critical loop.
+// A and x NO overlappables.
 void sqrt(BigNumber &A, BigNumber &x) {
 	static BigNumber xo;
 	static BigNumber _1p2("0.5");
-	static BigNumber TRES("3");
+	static BigNumber _3("3");
 
 # ifdef DEBUG
 	cout << "SQRT";
@@ -22,26 +24,23 @@ void sqrt(BigNumber &A, BigNumber &x) {
 # endif
 
 	if (!A.isPositive) {
-		printf("ERROR: raíz compleja.\n");
-		exit(255);
+		printf("ERROR: complex root.\n");
+		exit(-1);
 	}
 
 	xo.isPositive = true;
 	memset(xo.digits, 0, N_DIGITS * sizeof(bcd_t));
 
-	// Si el orden de magnitud del número es n, empiezo a iterar en 10^(-n/2)
+	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[N_FRAC_DIGITS - (findFirstNonZeroDigitIndex(A) - N_FRAC_DIGITS
 			+ 1) / 2] = 1;
-	/* FLT d
-	 BN2FLT(A, d);
-	 FLT2BN(sqrt(d), xo);*/
 
 	for (int k = 0;; k++) {
 
 		copy(xo, x);
 		mul(x, x, xo);
 		mul(xo, A, xo); // A*x^2
-		sub(xo, TRES, xo, false); // (A*x^2 - 3)
+		sub(xo, _3, xo, false); // (A*x^2 - 3)
 		mul(_1p2, xo, xo); // 0.5*(A*x^2 - 3)
 		mul(x, xo, xo); // 0.5*x*(A*x^2 - 3)
 		xo.isPositive = !xo.isPositive;
@@ -52,22 +51,24 @@ void sqrt(BigNumber &A, BigNumber &x) {
 #   endif
 
 		if (compare(x, xo) >= (N_DIGITS - 2))
-			break; // Si se repite el iterante, paramos.
+			break; // convergence.
 	}
 
 # ifdef DEBUG
 	cout << endl;
 # endif
 
-	xo.isPositive = true; // por si converge a la solución negativa.
-	mul(A, xo, x); // el método ha convergido al inverso.
+	xo.isPositive = true; // rule out the negative solution
+
+	// the method has converged to the inverse of the solution 1/sqrt(A). If
+	// we multiply by A, we get A/sqrt(A) = sqrt(A).
+	mul(A, xo, x);
 }
 
 #else
-//------------------------------------------------------------------------
 
-// Cálculo de la raíz cuadrada por el método de Newton. (F(x) = x^2 - A).
-// A y x NO solapables.
+// Square root computation by Newton's method. (F(x) = x^2 - A).
+// A and x NO overlappables.
 void sqrt(BigNumber &A, BigNumber &x) {
 	static BigNumber x2, Fx, DFx, xo;
 
@@ -77,19 +78,16 @@ void sqrt(BigNumber &A, BigNumber &x) {
 # endif
 
 	if (!A.isPositive) {
-		printf("ERROR: raíz compleja.\n");
-		exit(255);
+		printf("ERROR: complex root.\n");
+		exit(-1);
 	}
 
 	xo.isPositive = true;
 	memset(xo.digits, 0, N_DIGITS * sizeof(bcd_t));
 
-	/* Si el orden de magnitud del número es n, empiezo a iterar en 10^(n/2)*/
+	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[N_FRAC_DIGITS + (findFirstNonZeroDigitIndex(A) - N_FRAC_DIGITS)
 	/ 2] = 1;
-	/*  FLT d;
-	 BN2FLT(A, d);
-	 FLT2BN(pow(d, 0.5), xo); */
 
 	for (;;) {
 
@@ -107,47 +105,50 @@ void sqrt(BigNumber &A, BigNumber &x) {
 #   endif
 
 		if (equals(x, xo))
-		break; // Si se repite el iterante, paramos.
+		break; // convergence.
 	}
 
 # ifdef DEBUG
 	cout << endl;
 # endif
 
-	// Por si el método de Newton me converge a la solución negativa
-	x.isPositive = true;
+	x.isPositive = true; // rule out the negative solution
 
-	// Si F(x) <= 0 -> x^2 <= A, podemos salir. si no, hay que restar 1.
+	// if F(x) <= 0 -> x^2 <= A, we can exit. In other case, we need to
+	// substract 1
 	if (!Fx.isPositive)
-	return; // F(x) <= 0. (signo forzado en 0).
+	return; // F(x) <= 0
 
+	// lets substract 1 from the result.
 	char c = 1;
 
-	// ajustamos (debido a esta resta) hasta donde tengamos que hacerlo.
+	// BCD adjustment.
 	for (int i = 0;; i++) {
 		x.digits[i] -= c;
 		c = (((char) x.digits[i]) < 0) ? 1 : 0;
 		if (!c)
-		break; // si no hay acarreo salgo.
+		break; // if the carry is zero, we can exit.
 		x.digits[i] += 10 * c;
 	}
 }
 
 #endif
 
-//---------------------------- RAIZ CUARTA ----------------------------
+//---------------------------- QUARTIC ROOT ----------------------------
 
 #ifdef INVERSE_NEWTON_SQRT4_ALGORITHM
 
-// Cálculo de la raíz cuarta por el método de Newton. (F(x) = x^4 - 1/A).
-// A y x NO solapables.
+// Quartic root extraction by Newton's method. (F(x) = x^4 - 1/A). This method
+// converges to the inverse of the quartic root and doesn't need to compute any
+// division in the time-critical loop.
+// A and x NO overlappables.
 void sqrt4(BigNumber &A, BigNumber &x) {
 	static BigNumber xo;
 	static BigNumber _1p4("0.25");
-	static BigNumber CINCO("5");
+	static BigNumber _5("5");
 
 	if (!A.isPositive) {
-		printf("ERROR: raíz compleja.\n");
+		printf("ERROR: complex root.\n");
 		exit(255);
 	}
 
@@ -159,12 +160,9 @@ void sqrt4(BigNumber &A, BigNumber &x) {
 	xo.isPositive = true;
 	memset(xo.digits, 0, N_DIGITS * sizeof(bcd_t));
 
-	/* Si el orden de magnitud del número es n, empiezo a iterar en 10^(n/4)*/
+	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[N_FRAC_DIGITS - (findFirstNonZeroDigitIndex(A) - N_FRAC_DIGITS
 			+ 1) / 4] = 1;
-	/* FLT d;
-	 BN2FLT(A, d);
-	 FLT2BN(pow(d, 0.25), xo);*/
 
 	for (int k = 0;; k++) {
 
@@ -172,7 +170,7 @@ void sqrt4(BigNumber &A, BigNumber &x) {
 		mul(x, x, xo);
 		mul(xo, xo, xo); // x^4
 		mul(xo, A, xo); // A*x^4
-		sub(xo, CINCO, xo, false); // (A*x^2 - 5)
+		sub(xo, _5, xo, false); // (A*x^2 - 5)
 		mul(_1p4, xo, xo); // 0.25*(A*x^4 - 5)
 		mul(x, xo, xo); // 0.25*x*(A*x^4 - 5)
 		xo.isPositive = !xo.isPositive;
@@ -183,39 +181,35 @@ void sqrt4(BigNumber &A, BigNumber &x) {
 #   endif
 
 		if (compare(x, xo) >= (N_DIGITS - 2))
-		break; // Si se repite el iterante, paramos.
+			break; // convergence.
 	}
 
 # ifdef DEBUG
 	cout << endl;
 # endif
 
-	xo.isPositive = true; // por si converge a la solución negativa.
+	xo.isPositive = true; // rule out the negative solution.
 	inv(xo, x);
 }
 
 #else 
-//------------------------------------------------------------------------
 
-// Cálculo de la raíz cuarta por el método de Newton. (F(x) = x^4 - A).
-// A y x NO solapables.
+// Quartic root extraction by Newton's method. (F(x) = x^4 - A).
+// A and x NO overlappables.
 void sqrt4(BigNumber &A, BigNumber &x) {
 	static BigNumber x1, x2, Fx, DFx, xo;
 
 	if (!A.isPositive) {
-		printf("ERROR: raíz compleja.\n");
+		printf("ERROR: complex root.\n");
 		exit(255);
 	}
 
 	xo.isPositive = true;
 	memset(xo.digits, 0, N_DIGITS * sizeof(bcd_t));
 
-	/* Si el orden de magnitud del n£mero es n, empiezo a iterar en 10^(n/4)*/
+	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[N_FRAC_DIGITS + (findFirstNonZeroDigitIndex(A) - N_FRAC_DIGITS)
-			/ 4] = 1;
-	/*  FLT d;
-	 BN2FLT(A, d);
-	 FLT2BN(pow(d, 0.25), xo); */
+	/ 4] = 1;
 
 	for (;;) {
 
@@ -231,24 +225,26 @@ void sqrt4(BigNumber &A, BigNumber &x) {
 		sub(x, x2, xo); // x - F(x)/F'(x)
 
 		if (equals(x, xo))
-			break; // Si se repite el iterante, paramos.
+		break; // convergence.
 	}
 
 	// Por si el método de Newton me converge a la solución negativa
 	x.isPositive = true;
 
-	// Si F(x) <= 0 -> x^2 <= A, podemos salir. si no, hay que restar 1.
+	// if F(x) <= 0 -> x^2 <= A, we can exit. In other case, we need to
+	// substract 1
 	if (!Fx.isPositive)
-		return; // F(x) <= 0. (signo forzado en 0).
+	return; // F(x) <= 0
 
+	// lets substract 1 from the result.
 	char c = 1;
 
-	// ajustamos (debido a esta resta) hasta donde tengamos que hacerlo.
+	// BCD adjustment.
 	for (int i = 0;; i++) {
 		x.digits[i] -= c;
 		c = (((char) x.digits[i]) < 0) ? 1 : 0;
 		if (!c)
-			break; // si no hay acarreo salgo.
+		break; // if the carry is zero, we can exit.
 		x.digits[i] += 10 * c;
 	}
 }
