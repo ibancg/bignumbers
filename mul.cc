@@ -30,139 +30,32 @@
 
 #include "bignum.h"
 
-#ifndef FFT_MUL_ALGORITHM
-
 // Classical algorithm.
-void mul(BigNumber &A, BigNumber &B, BigNumber &digits)
-{
+void mul(BigNumber &A, BigNumber &B, BigNumber &digits) {
 	int i, j;
 	unsigned long int r, c;
 	static bcd_t R[N_DIGITS + N_FRAC_DIGITS];
 
-	memset(R, 0, (N_DIGITS + N_FRAC_DIGITS)*sizeof(bcd_t));
+	memset(R, 0, (N_DIGITS + N_FRAC_DIGITS) * sizeof(bcd_t));
 
 	for (i = 0; i < N_DIGITS; i++) {
-		for (j = 0, c = 0; (j < N_DIGITS) && ((j + i) < (N_DIGITS + N_FRAC_DIGITS)); j++) {
+		for (j = 0, c = 0; (j < N_DIGITS) && ((j + i) < (N_DIGITS
+				+ N_FRAC_DIGITS)); j++) {
 
-			r = R[j + i] + c + A.digits[j]*B.digits[i];
-			c = (r/10);
-			R[j + i] = (r - 10*c);
+			r = R[j + i] + c + A.digits[j] * B.digits[i];
+			c = (r / 10);
+			R[j + i] = (r - 10 * c);
 		}
 
 		// decimal adjustment
 		for (; (j + i) < (N_DIGITS + N_FRAC_DIGITS); j++) {
 			r = R[j + i] + c;
-			c = (r/10);
-			R[j + i] = (r - 10*c);
+			c = (r / 10);
+			R[j + i] = (r - 10 * c);
 		}
 	}
 
 	digits.isPositive = !(A.isPositive ^ B.isPositive);
-	memcpy(digits.digits, &R[N_FRAC_DIGITS], N_DIGITS*sizeof(bcd_t));
+	memcpy(digits.digits, &R[N_FRAC_DIGITS], N_DIGITS * sizeof(bcd_t));
 }
 
-#else
-
-// The former algorithm has order of n^2 time complexity, so it presents a
-// scalability problem for big numbers.
-//
-// Let us consider A and B sequences as polynomial coefficients. Then the
-// convolution operation of both signals will represent the polynomial
-// product. Knowing that none of the coefficients can be greather than their
-// base, if we do a decimal adjustement consisting in propagate the carry
-// values towards higher weight digits, the final sequence will be the
-// multiplication of both numbers. Thus, the multiplication can be performed
-// with a convolution operation with BCD adjustment.
-//
-// A convolution operation has also order of n^2 time complexity, but is well
-// known that it's transformed in an elementwise multiplication in frequency
-// domain. So, we can transform the signals, multiply them in frequency, and
-// apply an inverse transform.
-//
-// An efficient DFT calculus can be achieved with a FFT (Fast Fourier Transform)
-// algorithm, which reduces the complexity from O(n^2) to O(n*log2(n)).
-//
-// Optimization:
-//
-// The DFT signal will be complex even if the input signal does not, and we know
-// that the input signals (numbers to be multiplied) are real signals. Thus, we
-// can build an unique singal containing the information of both signals in
-// their real and imaginary parts.
-//
-// x[n] = x1 + i*x2[n] --> FFT --> X[n]
-//
-// Using FFT properties, we can extract:
-//
-// X1[n] =     1/2*(X[n] + conj(X[-n mod N]))
-// X2[n] = 1/(2*i)*(X[n] - conj(X[-n mod N]))
-//
-// So, we need to compute only one FFT instead of 2.
-
-
-#include "complex.h"
-#include "fft.h"
-
-// FFT-based multiplication imlpementation
-void mul(BigNumber &A, BigNumber &B, BigNumber &C) {
-	static Complex BC1[N_DIGITS << 1];
-	static Complex BC2[N_DIGITS << 1];
-	register int i;
-	Complex Xi, Xmi, X1, X2, X3;
-
-	// step 1: building a complex signal with the information of both signals.
-	for (i = 0; i < N_DIGITS; i++) {
-		BC1[i].r = A.digits[i]; // real part
-		BC1[i].i = B.digits[i]; // imaginary part
-	}
-
-	// cleans the higher section.
-	memset(&BC1[N_DIGITS], 0, N_DIGITS * sizeof(Complex));
-
-	// step 2: transform.
-	fft(BC1, BC2, (N_DIGITS << 1));
-
-	// step 3: element-wise multiplication in frequency domain.
-	for (i = 0; i < (N_DIGITS << 1); i++) {
-
-		// we need to extract the individual transformed signals from the
-		// composited one.
-		Xi = BC2[i];
-		Xmi = BC2[(-i) & ((N_DIGITS << 1) - 1)];
-		Xmi.i = -Xmi.i; // conjugate
-
-		X1.r = Xi.r + Xmi.r;
-		X1.i = Xi.i + Xmi.i; // X1 = Xi + Xmi
-		X2.r = Xi.r - Xmi.r;
-		X2.i = Xi.i - Xmi.i; // X2 = Xi - Xmi
-
-		// now let us multiply sample by sample.
-		X3.r = X1.r * X2.r - X1.i * X2.i;
-		X3.i = X1.r * X2.i + X1.i * X2.r; // X3 = X1*X2;
-
-		BC1[i].r = 0.25 * X3.i;
-		BC1[i].i = -0.25 * X3.r;
-	}
-
-	// step 4: inverse transform.
-	ifft(BC1, BC2, (N_DIGITS << 1));
-
-	unsigned long int c, ci;
-	flt_t x;
-
-	// step 5: cleaning and BCD adjust.
-	for (i = 0, c = 0; i < N_DIGITS + N_FRAC_DIGITS; i++) {
-
-		x = BC2[i].r; // drops imaginary part.
-
-		// rounding
-		ci = (unsigned long int) (c + round(x));
-
-		c = (ci / 10); // carry propagation
-		if (i >= N_FRAC_DIGITS)
-			C.digits[i - N_FRAC_DIGITS] = (ci - 10 * c); // ci % 10
-	}
-
-	C.isPositive = !(A.isPositive ^ B.isPositive);
-}
-
-#endif
