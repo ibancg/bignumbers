@@ -1,3 +1,21 @@
+/*
+ BigNumbers - Arbitrary precision arithmetic
+ Copyright 2000-2009, Ibán Cereijo Graña <ibancg at gmail dot com>
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <stdio.h>
 
 #include <stdlib.h>
@@ -8,51 +26,40 @@
 
 int main() {
 
-	int k;
-
-	printf("------- PI computation by Gauss-Legendre method -------\n");
+	BigNumber X, Y, Z;
 
 	createPhaseFactors();
 
-	BigNumber a("1");
-	BigNumber b;
-	BigNumber t("0.25");
-	BigNumber x("1");
-	BigNumber y;
-	BigNumber _1p2("0.5");
+	BigNumber X1, X2, X3, AX1, AX2, AX3, AX;
 
-	BigNumber aux1;
+	printf("testing if 1841^12 + 1782^12 = 1922^12\t\n");
 
-	sqrt(_1p2, b); // b = 1/sqrt(2)
+	X1 = BigNumber("1841");
+	X2 = BigNumber("1782");
+	X3 = BigNumber("1922");
 
-	for (k = 0; k < 20; k++) {
+	copy(X1, AX1);
+	copy(X2, AX2);
+	copy(X3, AX3);
 
-		printf("iteration #%i\n", k);
-		sub(a, b, aux1);
+	for (int i = 1; i < 12; i++) {
 
-		copy(a, y); // y = a
-		add(a, b, aux1);
-		mul(aux1, _1p2, a); // a = (a + b)*0.5
-		mul(b, y, aux1);
-		sqrt(aux1, b); // b = sqrt(b*y)
-
-		sub(y, a, aux1);
-		mul(aux1, aux1, aux1);
-		mul(x, aux1, aux1);
-		sub(t, aux1, t); // t = t - x*(y - a)^2
-		add(x, x, x); // x = 2*x;
-
-		if (equals(a, b))
-			break;
+		mul(AX1, X1, AX);
+		copy(AX, AX1);
+		mul(AX2, X2, AX);
+		copy(AX, AX2);
+		mul(AX3, X3, AX);
+		copy(AX, AX3);
 	}
 
-	add(t, t, t);
-	add(t, t, t); // t = 4*t
-	add(a, b, x);
-	mul(x, x, x);
-	div(x, t, aux1); // pi = (a + b)^2/(4*t)
-
-	printf("PI ~= ");
-	aux1.show();
-	printf("%u decimals of PI found in %u iterations.\n", N_FRAC_DIGITS, k);
+	printf("1841^12 = \t\t");
+	AX1.show();
+	printf("1782^12 =\t\t");
+	AX2.show();
+	add(AX1, AX2, AX);
+	printf("1841^12 + 1782^12 =\t");
+	AX.show();
+	printf("1922^12 =\t\t");
+	AX3.show();
+	printf("%s\n", equals(AX, AX3) ? "true!" : "false!");
 }

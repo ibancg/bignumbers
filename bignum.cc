@@ -1,3 +1,21 @@
+/*
+ BigNumbers - Arbitrary precision arithmetic
+ Copyright 2000-2009, Ibán Cereijo Graña <ibancg at gmail dot com>
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,22 +92,6 @@ void BigNumber::show() {
 	}
 
 	printf("::(%u digits)\n", nc);
-}
-
-void shl(BigNumber &A, BigNumber &B, int d) {
-	if (d >= 0) {
-		memcpy(B.digits + d, A.digits, N_DIGITS - d * sizeof(bcd_t));
-		memset(B.digits, 0, d * sizeof(bcd_t));
-	} else {
-		memcpy(B.digits, A.digits - d, N_DIGITS + d * sizeof(bcd_t));
-		memset(&B.digits[N_DIGITS + d], 0, -d * sizeof(bcd_t));
-	}
-
-	B.isPositive = A.isPositive;
-}
-
-void shr(BigNumber &A, BigNumber &B, int d) {
-	shl(A, B, -d);
 }
 
 void copy(BigNumber &A, BigNumber &B) {

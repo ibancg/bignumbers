@@ -1,30 +1,22 @@
 
-#
-# Makefile para compilar programas en C++
-#
-
-PROYECTO  = bignum
-FUENTES   = *.cc
+PROJECT  = bignum
+SOURCES   = *.cc
 
 C_FLAGS   = -Wall -O2 -g $(INCDIR)
-LIBRERIAS = -lm -lstdc++
-COMPILAR  = g++ $(C_FLAGS) -c $< -o $@
-ENLAZAR   = g++ -o $(PROYECTO) $(OBJS) $(LIBRERIAS)
+LIBRARIES = -lm -lstdc++
 
-SRCS = $(wildcard $(FUENTES))
+SRCS = $(wildcard $(SOURCES))
 OBJS = $(SRCS:.cc=.o)
 
-all: $(PROYECTO)
+all: $(PROJECT)
 
-$(PROYECTO): .depend $(OBJS)
-	@echo "Enlazando $(OBJS) -> $@"
-	@$(ENLAZAR)
+$(PROJECT): .depend $(OBJS)
+	g++ -o $(PROJECT) $(OBJS) $(LIBRARIES)
 
 %.o: %.cc .depend
-	@echo "Compilando $< -> $@"
-	@$(COMPILAR)
+	g++ $(C_FLAGS) -c $< -o $@
 
-run: $(PROYECTO)
+run: $(PROJECT)
 clean:
 	@rm -f $(OBJS)
 	@rm -f .depend
