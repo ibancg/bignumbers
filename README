@@ -1,0 +1,26 @@
+
+DESCRIPTION
+-----------
+
+Library designed for deal with arbitrary-precision arithmetic. Also, a simple
+example is provided.
+
+
+COMPILING
+---------
+
+Compile it entering the command "make". You will need the GCC compiler and the
+GNU Make tool.
+
+
+RUNNING THE TEST PROGRAM
+------------------------
+
+	Usage: bignumber
+
+The program will test the truthfulness of the affirmation
+
+1841^12 + 1782^12 = 1922^12
+
+The former equality appeared in the Simpsons episode "Treehouse of Horror VI"
+(http://www.snpp.com/episodes/3F04.html)
