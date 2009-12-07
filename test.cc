@@ -18,32 +18,24 @@
 
 #include <stdio.h>
 
-#include <stdlib.h>
-#include <string.h>
-
-#include "fft.h"
 #include "bignum.h"
 
 int main() {
 
-	BigNumber X, Y, Z;
-
-	createPhaseFactors();
-
-	BigNumber X1, X2, X3, AX1, AX2, AX3, AX;
-
 	printf("testing if 1841^12 + 1782^12 = 1922^12\t\n");
 
-	X1 = BigNumber("1841");
-	X2 = BigNumber("1782");
-	X3 = BigNumber("1922");
+	BigNumber X1 = BigNumber("1841");
+	BigNumber X2 = BigNumber("1782");
+	BigNumber X3 = BigNumber("1922");
+
+	BigNumber AX1, AX2, AX3, AX; // some auxiliar variables
 
 	copy(X1, AX1);
 	copy(X2, AX2);
 	copy(X3, AX3);
 
+	// exponentiation in a simple way
 	for (int i = 1; i < 12; i++) {
-
 		mul(AX1, X1, AX);
 		copy(AX, AX1);
 		mul(AX2, X2, AX);
