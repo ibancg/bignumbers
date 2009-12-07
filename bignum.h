@@ -19,7 +19,7 @@
 #ifndef __BIGNUMBER_H_
 #define __BIGNUMBER_H_
 
-// "Arbitrarily" big numbers with fixed-point arithmetic.
+// Arbitrary-precission fixed-point arithmetic.
 //
 // A BCD system with sign and modulus representation and decimal adjustment
 // has been chosen, so each figure represents a decimal digit.
