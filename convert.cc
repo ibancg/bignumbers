@@ -1,7 +1,3 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 /*
  BigNumbers - Arbitrary precision arithmetic
  Copyright 2000-2009, Ibán Cereijo Graña <ibancg at gmail dot com>
@@ -19,6 +15,10 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "bignum.h"
 
