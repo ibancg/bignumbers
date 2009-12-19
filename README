@@ -18,7 +18,7 @@ RUNNING THE TEST PROGRAM
 
 	Usage: bignumber
 
-The program will test the truthfulness of the affirmation
+The program will test the falseness of the affirmation
 
 1841^12 + 1782^12 = 1922^12
 
