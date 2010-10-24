@@ -18,7 +18,5 @@ RUNNING THE TEST PROGRAM
 
 	Usage: bignumber
 
-The program will compute 96171307032^1024 with two different multiplication
-algorithms (FFT and long multiplication algorithm), the result is a number with
-11247 digits.
-
+The program will evaluate the 37th known Mersenne prime, 2^3,021,377 - 1, with
+909,526 digits.
