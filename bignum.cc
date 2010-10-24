@@ -1,6 +1,6 @@
 /*
  BigNumbers - Arbitrary precision arithmetic
- Copyright 2000-2009, Ibán Cereijo Graña <ibancg at gmail dot com>
+ Copyright 2000-2010, Ibán Cereijo Graña <ibancg at gmail dot com>
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -38,13 +38,13 @@ BigNumber::BigNumber(const char *s) {
 	if (!isPositive)
 		s++;
 
-	char *e = strchr(s, 'e');
+	const char *e = strchr(s, 'e');
 	unsigned int ls = ((e) ? (e - s) : strlen(s));
 
 	char *bp;
 	int exponent = ((e) ? strtol(&e[1], &bp, 0) : 0);
 
-	char *dot = strchr(s, '.');
+	const char *dot = strchr(s, '.');
 	unsigned int dot_index = ((dot) ? (dot - s) : ls); // dot index.
 	unsigned int i;
 

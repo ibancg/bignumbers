@@ -18,9 +18,7 @@ RUNNING THE TEST PROGRAM
 
 	Usage: bignumber
 
-The program will test the falseness of the affirmation
+The program will compute 96171307032^1024 with two different multiplication
+algorithms (FFT and long multiplication algorithm), the result is a number with
+11247 digits.
 
-1841^12 + 1782^12 = 1922^12
-
-The former equality appeared in the Simpsons episode "Treehouse of Horror VI"
-(http://www.snpp.com/episodes/3F04.html)
