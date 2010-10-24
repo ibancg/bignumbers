@@ -51,47 +51,88 @@ BigNumber::BigNumber(const char *s) {
 	for (i = 0; i < dot_index; i++)
 		digits[N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i] - 48;
 
+	int index;
 	if (dot_index != ls)
-		for (i = dot_index + 1; i < ls; i++)
-			digits[N_FRAC_DIGITS - (i - dot_index) + exponent] = s[i] - 48;
+		for (i = dot_index + 1; i < ls; i++) {
+			index = N_FRAC_DIGITS - (i - dot_index) + exponent;
+			if (index > 0) {
+				digits[index] = s[i] - 48;
+			}
+		}
 }
 
-void BigNumber::show() {
+void BigNumber::show(int threshold, int shortNotationDigits) {
 	int i, j;
-	unsigned short int nc = 0;
+	long int ni = 0; // number of integer digits
+	long int nf = 0; // number of fractional digits
 	bool z = true;
 
 	if (!isPositive)
 		printf("-");
 
+	int firstNonZeroIndex = N_DIGITS;
+
 	for (i = N_DIGITS - 1; i >= N_FRAC_DIGITS; i--) {
 
-		if (z && (digits[i]))
+		if (z && (digits[i])) {
+			firstNonZeroIndex = i;
 			z = false;
-		if (!z) {
-			printf("%c", digits[i] + 48);
-			nc++;
 		}
 	}
 
 	if (z) { // special case: zero.
 		printf("0");
-		nc++;
+		ni = 0;
+	} else {
+
+		ni = firstNonZeroIndex - N_FRAC_DIGITS + 1;
+		if ((ni > threshold) && (threshold > 2 * shortNotationDigits)) {
+			for (i = firstNonZeroIndex; i > firstNonZeroIndex
+					- shortNotationDigits; i--) {
+				printf("%c", digits[i] + 48);
+			}
+			printf("...");
+			for (i = N_FRAC_DIGITS + shortNotationDigits - 1; i
+					>= N_FRAC_DIGITS; i--) {
+				printf("%c", digits[i] + 48);
+			}
+
+		} else {
+			for (i = firstNonZeroIndex; i >= N_FRAC_DIGITS; i--) {
+				printf("%c", digits[i] + 48);
+			}
+		}
+
 	}
 
 	for (j = 0; j < N_FRAC_DIGITS; j++)
 		if (digits[j])
 			break;
 
-	// decimal part.
-	if (j != N_FRAC_DIGITS)
+	nf = N_FRAC_DIGITS - j;
+
+	if (nf > 0) {
+		// decimal part.
 		printf(".");
-	for (i = N_FRAC_DIGITS - 1; i >= j; i--) {
-		printf("%c", digits[i] + 48);
-		nc++;
+
+		nf = N_FRAC_DIGITS - j;
+		if ((nf > threshold) && (threshold > 2 * shortNotationDigits)) {
+			for (i = N_FRAC_DIGITS - 1; i >= N_FRAC_DIGITS
+					- shortNotationDigits; i--) {
+				printf("%c", digits[i] + 48);
+			}
+			printf("...");
+			for (i = j + shortNotationDigits - 1; i >= j; i--) {
+				printf("%c", digits[i] + 48);
+			}
+		} else {
+			for (i = N_FRAC_DIGITS - 1; i >= j; i--) {
+				printf("%c", digits[i] + 48);
+			}
+		}
 	}
 
-	printf("::(%u digits)\n", nc);
+	printf("::(%lu digits, %lu integer and %lu fractional)\n", ni + nf, ni, nf);
 }
 
 void copy(BigNumber &A, BigNumber &B) {

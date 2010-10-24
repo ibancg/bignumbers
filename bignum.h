@@ -41,8 +41,12 @@ public:
 	// Creates a bignumber from a string, example: N = BigNumber("-1786.059e36");
 	BigNumber(const char *);
 
-	// Visualization.
-	void show();
+	// Visualization. The parameter threshold configures the limit in number of
+	// digits below which all the digits are showed. If the number of digits is
+	// greater than the threshold, a format like 1274...0246.5162...2134 is
+	// used. When this short notation is used, shortNotationDigits digits are
+	// depicted in each group
+	void show(int threshold = 15000, int shortNotationDigits = 9);
 
 	// Conversions between bignumbers and floats
 	friend void flt2BigNumber(flt_t flt, BigNumber& bn);

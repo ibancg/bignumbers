@@ -24,52 +24,68 @@
 
 int main() {
 
-	const char* x = "96171307032";
-	unsigned int iter = 10;
-	unsigned long int power = pow(2, iter);
 	struct timeval t1, t2, t3;
 	double elapsed_time;
 
 	// initialize the fft library
 	createPhaseFactors();
 
-	BigNumber X = BigNumber(x);
+	// computes the Mersenne number 2^p - 1
 
-	printf("Computing %s^%ld using the FFT multiplication algorithm ...\n", x,
-			power);
+	unsigned long int p = 3021377; // exponent (37th known Mersenne number)
+
+	unsigned int nbits = 0; // number of bits of p
+	unsigned long int p2 = p;
+	while (p2 != 0) { // count the number of bits of p
+		p2 >>= 1;
+		nbits++;
+	}
+
+	unsigned int nmuls = 0; // number of needed muls
+
+	BigNumber X = BigNumber("1");
+	BigNumber AX = BigNumber("2");
 
 	gettimeofday(&t1, NULL);
+	printf("Evaluating the Mersenne number 2^%lu\n", p);
+	printf("0%% completed\n");
 
-	// exponentiation in a simple way
-	for (int i = 0; i < 10; i++) {
-		mulFFT(X, X, X);
+	// the algorithm finds first the binary representation of p = (b0 b1 ... bn)
+	// so p = b0*2^0 + b1*2^1 + ... + bn*2^n, that is,
+	// 2^p = 2^(b0*2^0)*2^(b2*2^1)*...*2^(bn*2^n)
+	// the 2^(2^i) quantity can be easily computed in a loop by multiplying an
+	// acumulator by itself in each iteration (starting with 2)
+	p2 = p;
+	int i = 0;
+	while (p2 != 0) { // starts process
+		int bit = p2 & 1;
+		p2 >>= 1;
+
+		if (bit) {
+			mulFFT(X, AX, X);
+			nmuls++;
+		}
+
+		if (p == 0) {
+			break;
+		}
+
+		mulFFT(AX, AX, AX);
+		nmuls++;
+
+		i++;
+		printf("%d%% completed\n", (100 * i) / nbits);
 	}
+
+	BigNumber One = BigNumber("1");
+	sub(X, One, X);
 
 	gettimeofday(&t2, NULL);
 
 	printf("result = ");
 	X.show();
 	timersub(&t2, &t1, &t3);
-	elapsed_time = t3.tv_sec + 1e-6*t3.tv_usec;
+	elapsed_time = t3.tv_sec + 1e-6 * t3.tv_usec;
 	printf("computation time: %lf seconds\n", elapsed_time);
-
-	X = BigNumber(x);
-
-	printf("\nComputing %s^%ld using the long multiplication algorithm ...\n",
-			x, power);
-
-	gettimeofday(&t1, NULL);
-
-	// exponentiation in a simple way
-	for (int i = 0; i < 10; i++) {
-		mulLMA(X, X, X);
-	}
-
-	gettimeofday(&t2, NULL);
-
-	printf("result = ");
-	X.show();
-	timersub(&t2, &t1, &t3);
-	elapsed_time = t3.tv_sec + 1e-6*t3.tv_usec;
-	printf("computation time: %lf seconds\n", elapsed_time);
+	printf("%d multiplications and 1 substraction needed\n", nmuls);
 }
