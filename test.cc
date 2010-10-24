@@ -1,6 +1,6 @@
 /*
  BigNumbers - Arbitrary precision arithmetic
- Copyright 2000-2009, Ibán Cereijo Graña <ibancg at gmail dot com>
+ Copyright 2000-2010, Ibán Cereijo Graña <ibancg at gmail dot com>
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -17,41 +17,59 @@
  */
 
 #include <stdio.h>
+#include <sys/time.h>
 
+#include "fft.h"
 #include "bignum.h"
 
 int main() {
 
-	printf("testing if 1841^12 + 1782^12 = 1922^12\t\n");
+	const char* x = "96171307032";
+	unsigned int iter = 10;
+	unsigned long int power = pow(2, iter);
+	struct timeval t1, t2, t3;
+	double elapsed_time;
 
-	BigNumber X1 = BigNumber("1841");
-	BigNumber X2 = BigNumber("1782");
-	BigNumber X3 = BigNumber("1922");
+	// initialize the fft library
+	createPhaseFactors();
 
-	BigNumber AX1, AX2, AX3, AX; // some auxiliar variables
+	BigNumber X = BigNumber(x);
 
-	copy(X1, AX1);
-	copy(X2, AX2);
-	copy(X3, AX3);
+	printf("Computing %s^%ld using the FFT multiplication algorithm ...\n", x,
+			power);
+
+	gettimeofday(&t1, NULL);
 
 	// exponentiation in a simple way
-	for (int i = 1; i < 12; i++) {
-		mul(AX1, X1, AX);
-		copy(AX, AX1);
-		mul(AX2, X2, AX);
-		copy(AX, AX2);
-		mul(AX3, X3, AX);
-		copy(AX, AX3);
+	for (int i = 0; i < 10; i++) {
+		mulFFT(X, X, X);
 	}
 
-	printf("1841^12 = \t\t");
-	AX1.show();
-	printf("1782^12 =\t\t");
-	AX2.show();
-	add(AX1, AX2, AX);
-	printf("1841^12 + 1782^12 =\t");
-	AX.show();
-	printf("1922^12 =\t\t");
-	AX3.show();
-	printf("%s\n", equals(AX, AX3) ? "true!" : "false!");
+	gettimeofday(&t2, NULL);
+
+	printf("result = ");
+	X.show();
+	timersub(&t2, &t1, &t3);
+	elapsed_time = t3.tv_sec + 1e-6*t3.tv_usec;
+	printf("computation time: %lf seconds\n", elapsed_time);
+
+	X = BigNumber(x);
+
+	printf("\nComputing %s^%ld using the long multiplication algorithm ...\n",
+			x, power);
+
+	gettimeofday(&t1, NULL);
+
+	// exponentiation in a simple way
+	for (int i = 0; i < 10; i++) {
+		mulLMA(X, X, X);
+	}
+
+	gettimeofday(&t2, NULL);
+
+	printf("result = ");
+	X.show();
+	timersub(&t2, &t1, &t3);
+	elapsed_time = t3.tv_sec + 1e-6*t3.tv_usec;
+	printf("computation time: %lf seconds\n", elapsed_time);
 }

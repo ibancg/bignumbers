@@ -1,6 +1,6 @@
 /*
  BigNumbers - Arbitrary precision arithmetic
- Copyright 2000-2009, Ibán Cereijo Graña <ibancg at gmail dot com>
+ Copyright 2000-2010, Ibán Cereijo Graña <ibancg at gmail dot com>
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

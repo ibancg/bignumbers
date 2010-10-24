@@ -1,6 +1,6 @@
 /*
  BigNumbers - Arbitrary precision arithmetic
- Copyright 2000-2009, Ibán Cereijo Graña <ibancg at gmail dot com>
+ Copyright 2000-2010, Ibán Cereijo Graña <ibancg at gmail dot com>
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,9 +29,10 @@
 // floating point precission
 #define flt_t double  
 
-#define N_DIGITS		100  // number of digits in the format.
+#define N_DIGITS		16384  // number of digits in the format.
 #define N_FRAC_DIGITS	 50  // number of fractional digits.
 typedef unsigned char bcd_t; // BCD digit type.
 
+#define FFT_MUL_ALGORITHM
 
 #endif
