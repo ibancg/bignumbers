@@ -26,10 +26,12 @@
 
 // Constructs an empty BN.
 BigNumber::BigNumber() {
+	digits = 0;
 }
 
 // Constructs a BN by parsing the string representation
 BigNumber::BigNumber(const char *s) {
+	digits = new bcd_t[N_DIGITS];
 	memset(digits, 0, N_DIGITS * sizeof(bcd_t));
 
 	// if the first char is the minus sign, the number is negative
@@ -59,6 +61,13 @@ BigNumber::BigNumber(const char *s) {
 				digits[index] = s[i] - 48;
 			}
 		}
+}
+
+// Constructs an empty BN.
+BigNumber::~BigNumber() {
+	if (digits != 0) {
+		delete[] digits;
+	}
 }
 
 void BigNumber::show(int threshold, int shortNotationDigits) {

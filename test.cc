@@ -32,7 +32,9 @@ int main() {
 
 	// computes the Mersenne number 2^p - 1
 
-	unsigned long int p = 3021377; // exponent (37th known Mersenne number)
+	// exponent
+	unsigned long int p = 43112609; // largest known Mersenne number
+	//	unsigned long int p = 3021377; // 37th known Mersenne number
 
 	unsigned int nbits = 0; // number of bits of p
 	unsigned long int p2 = p;
@@ -50,7 +52,7 @@ int main() {
 	printf("Evaluating the Mersenne number 2^%lu\n", p);
 	printf("0%% completed\n");
 
-	// the algorithm finds first the binary representation of p = (b0 b1 ... bn)
+	// the algorithm finds first the binary representation of p = (bn ... b1 b0)
 	// so p = b0*2^0 + b1*2^1 + ... + bn*2^n, that is,
 	// 2^p = 2^(b0*2^0)*2^(b2*2^1)*...*2^(bn*2^n)
 	// the 2^(2^i) quantity can be easily computed in a loop by multiplying an
@@ -70,7 +72,7 @@ int main() {
 			break;
 		}
 
-		mulFFT(AX, AX, AX);
+		mulFFT(AX, AX, AX); // 2^(2^i)
 		nmuls++;
 
 		i++;
@@ -87,5 +89,7 @@ int main() {
 	timersub(&t2, &t1, &t3);
 	elapsed_time = t3.tv_sec + 1e-6 * t3.tv_usec;
 	printf("computation time: %lf seconds\n", elapsed_time);
-	printf("%d multiplications and 1 substraction needed\n", nmuls);
+	printf("%d multiplications and 1 subtraction needed\n", nmuls);
+
+	destroyPhaseFactors();
 }
