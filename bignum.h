@@ -30,7 +30,7 @@ class BigNumber {
 
 public:
 
-	bcd_t digits[N_DIGITS];
+	bcd_t* digits;
 	bool isPositive; // positive/!negative flag
 
 	// Constructors.
@@ -40,6 +40,8 @@ public:
 
 	// Creates a bignumber from a string, example: N = BigNumber("-1786.059e36");
 	BigNumber(const char *);
+
+	~BigNumber();
 
 	// Visualization. The parameter threshold configures the limit in number of
 	// digits below which all the digits are showed. If the number of digits is

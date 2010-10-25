@@ -21,11 +21,13 @@
 #include "fft.h"
 
 // Phase factors.
-Complex WN[N_DIGITS];
+Complex* WN;
 
 // Optimization: computes the phase factor table WN[i] = exp(-j*k), with
 // k = 0..pi (N samples)
 void createPhaseFactors() {
+
+	WN = new Complex[N_DIGITS];
 	flt_t alpha;
 
 	for (int i = 0; i < N_DIGITS; i++) {
@@ -33,6 +35,10 @@ void createPhaseFactors() {
 		WN[i].r = cos(alpha);
 		WN[i].i = sin(alpha);
 	}
+}
+
+void destroyPhaseFactors() {
+	delete[] WN;
 }
 
 void fft(Complex *x, Complex *X, unsigned long int N, unsigned long int offset,

@@ -23,10 +23,14 @@
 
 #include "complex.h"
 
+// initializes the libreary
 void createPhaseFactors();
 
+// deallocate resources
+void destroyPhaseFactors();
+
 // computes the dft X of the signal x by a fft algorithm. The number of samples
-// N is power ot 2.
+// N must be a power ot 2.
 void fft(Complex *x, Complex *X, unsigned long int N, unsigned long int = 0,
 		unsigned long int = 0, unsigned long int = 1);
 

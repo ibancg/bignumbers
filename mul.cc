@@ -32,7 +32,7 @@
 #include "fft.h"
 
 // Classical algorithm.
-void mulLMA(BigNumber &A, BigNumber &B, BigNumber &digits) {
+void mulLMA(BigNumber &A, BigNumber &B, BigNumber &C) {
 	int i, j;
 	unsigned long int r, c;
 	static bcd_t R[N_DIGITS + N_FRAC_DIGITS];
@@ -56,8 +56,8 @@ void mulLMA(BigNumber &A, BigNumber &B, BigNumber &digits) {
 		}
 	}
 
-	digits.isPositive = !(A.isPositive ^ B.isPositive);
-	memcpy(digits.digits, &R[N_FRAC_DIGITS], N_DIGITS * sizeof(bcd_t));
+	C.isPositive = !(A.isPositive ^ B.isPositive);
+	memcpy(C.digits, &R[N_FRAC_DIGITS], N_DIGITS * sizeof(bcd_t));
 }
 
 // The former algorithm has order of n^2 time complexity, so it presents a
@@ -115,7 +115,7 @@ void mulFFT(BigNumber &A, BigNumber &B, BigNumber &C) {
 	// step 2: transform.
 	fft(BC1, BC2, (N_DIGITS << 1));
 
-	// step 3: element-wise multiplication in frequency domain.
+	// step 3: point-wise multiplication in frequency domain.
 	for (i = 0; i < (N_DIGITS << 1); i++) {
 
 		// we need to extract the individual transformed signals from the
