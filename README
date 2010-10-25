@@ -27,3 +27,8 @@ If that's too much for you, you can compute a cheaper Mersenne prime, but
 remember to adjust N_DIGITS to a lower value (e.g., you can compute the number 
 2^3,021,377 - 1, with 909,526 digits, with N_DIGITS = 1048576, in about 35
 seconds).
+
+The result should be:
+
+> result = 316470269...697152511::(12978189 digits, 12978189 integer and 0
+    fractional)
