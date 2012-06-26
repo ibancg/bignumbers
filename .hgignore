@@ -1,0 +1,11 @@
+
+syntax: regexp
+\.png$
+syntax: regexp
+^fig/diagram2\.png$
+syntax: regexp
+\.png$
+syntax: regexp
+^bignum$
+syntax: regexp
+^bignum$
