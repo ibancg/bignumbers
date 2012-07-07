@@ -18,48 +18,13 @@
 
 #include <fstream>
 #include <sys/time.h>
-#include <getopt.h>
-#include <stdlib.h>
 
 #include "fft.h"
 #include "bignum.h"
 
 int main(int argc, char *argv[]) {
 
-	const char* const op_short = "o";
-	const struct option op_long[] = { //
-			{ "output", 1, NULL, 'o' }, //
-					{ "help", 0, NULL, 'h' } //
-			};
-
-	int ich;
 	std::string fileName = "output.txt";
-	char* output_file_name = 0x0;
-	while ((ich = getopt_long(argc, argv, op_short, op_long, NULL)) != EOF) {
-		switch (ich) {
-		case 'o':
-			output_file_name = optarg;
-			if (output_file_name) {
-				std::cout << "output_file_name = " << output_file_name
-						<< std::endl;
-				fileName = output_file_name;
-			}
-			break;
-		case 'h':
-			printf("Usage: bignum [-o output_file]");
-			printf("\nMersenne prime number evaluation.\n");
-			printf("Example: bignum -o output.txt\n\n");
-			printf("Options:\n");
-			printf("  -o, --output=FILE  write the solution to FILE\n");
-			printf("  -h, --help         display this help and exit\n");
-			printf("\n");
-			exit(0);
-		default:
-			printf("Usage: bignum [-o output_file]\n");
-			printf("Try bignum --help for more information.\n");
-			exit(0);
-		}
-	}
 
 	struct timeval t1, t2, t3;
 	double elapsed_time;
@@ -71,8 +36,8 @@ int main(int argc, char *argv[]) {
 
 	// exponent
 	//unsigned long int p = 43112609; // largest known Mersenne number
-	//unsigned long int p = 3021377; // 37th known Mersenne number
-	unsigned long int p = 246; // 37th known Mersenne number
+	unsigned long int p = 3021377; // 37th known Mersenne number
+	//unsigned long int p = 246;
 
 	unsigned int nbits = 0; // number of bits of p
 	unsigned long int p2 = p;
@@ -133,6 +98,7 @@ int main(int argc, char *argv[]) {
 			<< std::endl;
 	std::cout << "dumping result to file '" << fileName << "' ..." << std::endl;
 	std::ofstream file(fileName.c_str());
+	file << "Mersenne prime number 2^" << p << " - 1 = ";
 	X.show(file, 0);
 	std::cout << "done." << std::endl;
 
