@@ -16,13 +16,50 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
+#include <fstream>
 #include <sys/time.h>
+#include <getopt.h>
+#include <stdlib.h>
 
 #include "fft.h"
 #include "bignum.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+
+	const char* const op_short = "o";
+	const struct option op_long[] = { //
+			{ "output", 1, NULL, 'o' }, //
+					{ "help", 0, NULL, 'h' } //
+			};
+
+	int ich;
+	std::string fileName = "output.txt";
+	char* output_file_name = 0x0;
+	while ((ich = getopt_long(argc, argv, op_short, op_long, NULL)) != EOF) {
+		switch (ich) {
+		case 'o':
+			output_file_name = optarg;
+			if (output_file_name) {
+				std::cout << "output_file_name = " << output_file_name
+						<< std::endl;
+				fileName = output_file_name;
+			}
+			break;
+		case 'h':
+			printf("Usage: bignum [-o output_file]");
+			printf("\nMersenne prime number evaluation.\n");
+			printf("Example: bignum -o output.txt\n\n");
+			printf("Options:\n");
+			printf("  -o, --output=FILE  write the solution to FILE\n");
+			printf("  -h, --help         display this help and exit\n");
+			printf("\n");
+			exit(0);
+		default:
+			printf("Usage: bignum [-o output_file]\n");
+			printf("Try bignum --help for more information.\n");
+			exit(0);
+		}
+	}
 
 	struct timeval t1, t2, t3;
 	double elapsed_time;
@@ -33,8 +70,9 @@ int main() {
 	// computes the Mersenne number 2^p - 1
 
 	// exponent
-	unsigned long int p = 43112609; // largest known Mersenne number
-	//	unsigned long int p = 3021377; // 37th known Mersenne number
+	//unsigned long int p = 43112609; // largest known Mersenne number
+	//unsigned long int p = 3021377; // 37th known Mersenne number
+	unsigned long int p = 246; // 37th known Mersenne number
 
 	unsigned int nbits = 0; // number of bits of p
 	unsigned long int p2 = p;
@@ -49,8 +87,9 @@ int main() {
 	BigNumber AX = BigNumber("2");
 
 	gettimeofday(&t1, NULL);
-	printf("Evaluating the Mersenne number 2^%lu\n", p);
-	printf("0%% completed\n");
+	std::cout << "Evaluating the Mersenne number 2^" << p << " - 1"
+			<< std::endl;
+	std::cout << "0% completed" << std::endl;
 
 	// the algorithm finds first the binary representation of p = (bn ... b1 b0)
 	// so p = b0*2^0 + b1*2^1 + ... + bn*2^n, that is,
@@ -76,7 +115,7 @@ int main() {
 		nmuls++;
 
 		i++;
-		printf("%d%% completed\n", (100 * i) / nbits);
+		std::cout << ((100 * i) / nbits) << "% completed" << std::endl;
 	}
 
 	BigNumber One = BigNumber("1");
@@ -84,12 +123,18 @@ int main() {
 
 	gettimeofday(&t2, NULL);
 
-	printf("result = ");
+	std::cout << "result = ";
 	X.show();
 	timersub(&t2, &t1, &t3);
 	elapsed_time = t3.tv_sec + 1e-6 * t3.tv_usec;
-	printf("computation time: %lf seconds\n", elapsed_time);
-	printf("%d multiplications and 1 subtraction needed\n", nmuls);
+	std::cout << "computation time: " << elapsed_time << " seconds"
+			<< std::endl;
+	std::cout << nmuls << " multiplications and 1 subtraction needed"
+			<< std::endl;
+	std::cout << "dumping result to file '" << fileName << "' ..." << std::endl;
+	std::ofstream file(fileName.c_str());
+	X.show(file, 0);
+	std::cout << "done." << std::endl;
 
 	destroyPhaseFactors();
 }

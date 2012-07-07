@@ -17,7 +17,6 @@
  */
 
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "bignum.h"
@@ -70,14 +69,16 @@ BigNumber::~BigNumber() {
 	}
 }
 
-void BigNumber::show(int threshold, int shortNotationDigits) {
+void BigNumber::show(std::ostream& ostream, int threshold,
+		int shortNotationDigits) {
 	int i, j;
 	long int ni = 0; // number of integer digits
 	long int nf = 0; // number of fractional digits
 	bool z = true;
 
-	if (!isPositive)
-		printf("-");
+	if (!isPositive) {
+		ostream << '-';
+	}
 
 	int firstNonZeroIndex = N_DIGITS;
 
@@ -90,25 +91,26 @@ void BigNumber::show(int threshold, int shortNotationDigits) {
 	}
 
 	if (z) { // special case: zero.
-		printf("0");
+		ostream << '0';
 		ni = 0;
 	} else {
 
 		ni = firstNonZeroIndex - N_FRAC_DIGITS + 1;
-		if ((ni > threshold) && (threshold > 2 * shortNotationDigits)) {
-			for (i = firstNonZeroIndex; i > firstNonZeroIndex
-					- shortNotationDigits; i--) {
-				printf("%c", digits[i] + 48);
+		if ((threshold > 0) && (ni > threshold)
+				&& (threshold > 2 * shortNotationDigits)) {
+			for (i = firstNonZeroIndex;
+					i > firstNonZeroIndex - shortNotationDigits; i--) {
+				ostream << (char) (digits[i] + 48);
 			}
-			printf("...");
-			for (i = N_FRAC_DIGITS + shortNotationDigits - 1; i
-					>= N_FRAC_DIGITS; i--) {
-				printf("%c", digits[i] + 48);
+			ostream << "...";
+			for (i = N_FRAC_DIGITS + shortNotationDigits - 1;
+					i >= N_FRAC_DIGITS; i--) {
+				ostream << (char) (digits[i] + 48);
 			}
 
 		} else {
 			for (i = firstNonZeroIndex; i >= N_FRAC_DIGITS; i--) {
-				printf("%c", digits[i] + 48);
+				ostream << (char) (digits[i] + 48);
 			}
 		}
 
@@ -122,26 +124,27 @@ void BigNumber::show(int threshold, int shortNotationDigits) {
 
 	if (nf > 0) {
 		// decimal part.
-		printf(".");
+		ostream << '.';
 
 		nf = N_FRAC_DIGITS - j;
 		if ((nf > threshold) && (threshold > 2 * shortNotationDigits)) {
-			for (i = N_FRAC_DIGITS - 1; i >= N_FRAC_DIGITS
-					- shortNotationDigits; i--) {
-				printf("%c", digits[i] + 48);
+			for (i = N_FRAC_DIGITS - 1;
+					i >= N_FRAC_DIGITS - shortNotationDigits; i--) {
+				ostream << (char) (digits[i] + 48);
 			}
-			printf("...");
+			ostream << "...";
 			for (i = j + shortNotationDigits - 1; i >= j; i--) {
-				printf("%c", digits[i] + 48);
+				ostream << (char) (digits[i] + 48);
 			}
 		} else {
 			for (i = N_FRAC_DIGITS - 1; i >= j; i--) {
-				printf("%c", digits[i] + 48);
+				ostream << (char) (digits[i] + 48);
 			}
 		}
 	}
 
-	printf("::(%lu digits, %lu integer and %lu fractional)\n", ni + nf, ni, nf);
+	ostream << "::(" << (ni + nf) << " digits, " << ni << " integer and " << nf
+			<< " fractional)" << std::endl;
 }
 
 void copy(BigNumber &A, BigNumber &B) {
