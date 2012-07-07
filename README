@@ -32,3 +32,5 @@ The result should be:
 
 > result = 316470269...697152511::(12978189 digits, 12978189 integer and 0
     fractional)
+
+The whole result will be dumped to file 'output.txt'
