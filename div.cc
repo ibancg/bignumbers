@@ -27,28 +27,29 @@
 void div(BigNumber &A, BigNumber &B, BigNumber &C) {
 	int i, j, n;
 	int na = 0, nb = 0, nab;
-	static bcd_t AA[N_DIGITS + N_FRAC_DIGITS];
+	static bcd_t* AA = new bcd_t[BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS];
 
 	// AA is a shifted copy of A.
-	memcpy(&AA[N_FRAC_DIGITS], A.digits, N_DIGITS * sizeof(bcd_t));
-	memset(AA, 0, N_FRAC_DIGITS * sizeof(bcd_t));
+	memcpy(&AA[BigNumber::N_FRAC_DIGITS], A.digits,
+			BigNumber::N_DIGITS * sizeof(bcd_t));
+	memset(AA, 0, BigNumber::N_FRAC_DIGITS * sizeof(bcd_t));
 
-	for (i = N_DIGITS - 1; i >= 0; i--) {
+	for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
 		if ((!na) && (A.digits[i]))
 			na = i;
 		if ((!nb) && (B.digits[i]))
 			nb = i;
 	}
 
-	// AA is shifted N_FRAC_DIGITS digits.
-	na += N_FRAC_DIGITS;
+	// AA is shifted BigNumber::N_FRAC_DIGITS digits.
+	na += BigNumber::N_FRAC_DIGITS;
 
 	if (!nb && !B.digits[0]) {
 		printf("ERROR: division by 0\n");
 		exit(255);
 	}
 
-	memset(C.digits, 0, N_DIGITS * sizeof(bcd_t));
+	memset(C.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
 	C.isPositive = !(A.isPositive ^ B.isPositive);
 
 	if (nb > na)

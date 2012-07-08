@@ -19,6 +19,7 @@
 #include "config.h"
 #include "complex.h"
 #include "fft.h"
+#include "bignum.h"
 
 // Phase factors.
 Complex* WN;
@@ -27,11 +28,11 @@ Complex* WN;
 // k = 0..pi (N samples)
 void createPhaseFactors() {
 
-	WN = new Complex[N_DIGITS];
+	WN = new Complex[BigNumber::N_DIGITS];
 	flt_t alpha;
 
-	for (int i = 0; i < N_DIGITS; i++) {
-		alpha = -i * M_PI / N_DIGITS;
+	for (int i = 0; i < BigNumber::N_DIGITS; i++) {
+		alpha = -i * M_PI / BigNumber::N_DIGITS;
 		WN[i].r = cos(alpha);
 		WN[i].i = sin(alpha);
 	}

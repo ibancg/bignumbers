@@ -21,6 +21,9 @@
 
 #include "bignum.h"
 
+long BigNumber::BigNumber::N_DIGITS = 512; // number of digits in the format.
+long BigNumber::BigNumber::N_FRAC_DIGITS = 0; // number of fractional digits.
+
 // Generic functions implementation
 
 // Constructs an empty BN.
@@ -30,8 +33,8 @@ BigNumber::BigNumber() {
 
 // Constructs a BN by parsing the string representation
 BigNumber::BigNumber(const char *s) {
-	digits = new bcd_t[N_DIGITS];
-	memset(digits, 0, N_DIGITS * sizeof(bcd_t));
+	digits = new bcd_t[BigNumber::N_DIGITS];
+	memset(digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
 
 	// if the first char is the minus sign, the number is negative
 	isPositive = (*s != '-');
@@ -50,12 +53,12 @@ BigNumber::BigNumber(const char *s) {
 	unsigned int i;
 
 	for (i = 0; i < dot_index; i++)
-		digits[N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i] - 48;
+		digits[BigNumber::N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i] - 48;
 
 	int index;
 	if (dot_index != ls)
 		for (i = dot_index + 1; i < ls; i++) {
-			index = N_FRAC_DIGITS - (i - dot_index) + exponent;
+			index = BigNumber::N_FRAC_DIGITS - (i - dot_index) + exponent;
 			if (index > 0) {
 				digits[index] = s[i] - 48;
 			}
@@ -80,9 +83,9 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 		ostream << '-';
 	}
 
-	int firstNonZeroIndex = N_DIGITS;
+	int firstNonZeroIndex = BigNumber::N_DIGITS;
 
-	for (i = N_DIGITS - 1; i >= N_FRAC_DIGITS; i--) {
+	for (i = BigNumber::N_DIGITS - 1; i >= BigNumber::N_FRAC_DIGITS; i--) {
 
 		if (z && (digits[i])) {
 			firstNonZeroIndex = i;
@@ -95,7 +98,7 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 		ni = 0;
 	} else {
 
-		ni = firstNonZeroIndex - N_FRAC_DIGITS + 1;
+		ni = firstNonZeroIndex - BigNumber::N_FRAC_DIGITS + 1;
 		if ((threshold > 0) && (ni > threshold)
 				&& (threshold > 2 * shortNotationDigits)) {
 			for (i = firstNonZeroIndex;
@@ -103,33 +106,33 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 				ostream << (char) (digits[i] + 48);
 			}
 			ostream << "...";
-			for (i = N_FRAC_DIGITS + shortNotationDigits - 1;
-					i >= N_FRAC_DIGITS; i--) {
+			for (i = BigNumber::N_FRAC_DIGITS + shortNotationDigits - 1;
+					i >= BigNumber::N_FRAC_DIGITS; i--) {
 				ostream << (char) (digits[i] + 48);
 			}
 
 		} else {
-			for (i = firstNonZeroIndex; i >= N_FRAC_DIGITS; i--) {
+			for (i = firstNonZeroIndex; i >= BigNumber::N_FRAC_DIGITS; i--) {
 				ostream << (char) (digits[i] + 48);
 			}
 		}
 
 	}
 
-	for (j = 0; j < N_FRAC_DIGITS; j++)
+	for (j = 0; j < BigNumber::N_FRAC_DIGITS; j++)
 		if (digits[j])
 			break;
 
-	nf = N_FRAC_DIGITS - j;
+	nf = BigNumber::N_FRAC_DIGITS - j;
 
 	if (nf > 0) {
 		// decimal part.
 		ostream << '.';
 
-		nf = N_FRAC_DIGITS - j;
+		nf = BigNumber::N_FRAC_DIGITS - j;
 		if ((nf > threshold) && (threshold > 2 * shortNotationDigits)) {
-			for (i = N_FRAC_DIGITS - 1;
-					i >= N_FRAC_DIGITS - shortNotationDigits; i--) {
+			for (i = BigNumber::N_FRAC_DIGITS - 1;
+					i >= BigNumber::N_FRAC_DIGITS - shortNotationDigits; i--) {
 				ostream << (char) (digits[i] + 48);
 			}
 			ostream << "...";
@@ -137,7 +140,7 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 				ostream << (char) (digits[i] + 48);
 			}
 		} else {
-			for (i = N_FRAC_DIGITS - 1; i >= j; i--) {
+			for (i = BigNumber::N_FRAC_DIGITS - 1; i >= j; i--) {
 				ostream << (char) (digits[i] + 48);
 			}
 		}
@@ -148,28 +151,28 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 }
 
 void copy(BigNumber &A, BigNumber &B) {
-	memcpy(B.digits, A.digits, N_DIGITS * sizeof(bcd_t));
+	memcpy(B.digits, A.digits, BigNumber::N_DIGITS * sizeof(bcd_t));
 	B.isPositive = A.isPositive;
 }
 
 int findFirstNonZeroDigitIndex(BigNumber &A) {
-	for (register int i = N_DIGITS - 1; i >= 0; i--)
+	for (register int i = BigNumber::N_DIGITS - 1; i >= 0; i--)
 		if (A.digits[i])
 			return i;
 	return -1; // special case: zero
 }
 
 bool equals(BigNumber &A, BigNumber &B) {
-	for (register int i = 0; i < N_DIGITS; i++)
+	for (register int i = 0; i < BigNumber::N_DIGITS; i++)
 		if (A.digits[i] != B.digits[i])
 			return false;
 	return true;
 }
 
 int compare(BigNumber &A, BigNumber &B) {
-	for (register int i = N_DIGITS - 1; i >= 0; i--)
+	for (register int i = BigNumber::N_DIGITS - 1; i >= 0; i--)
 		if (A.digits[i] != B.digits[i])
-			return (N_DIGITS - i);
+			return (BigNumber::N_DIGITS - i);
 
-	return N_DIGITS;
+	return BigNumber::N_DIGITS;
 }

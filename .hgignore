@@ -9,3 +9,11 @@ syntax: regexp
 ^bignum$
 syntax: regexp
 ^bignum$
+syntax: regexp
+^output\.txt$
+syntax: regexp
+^bignum$
+syntax: regexp
+^results/mersenne-3021377\.txt$
+syntax: regexp
+^results/mersenne-43112609\.txt$

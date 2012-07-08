@@ -29,8 +29,6 @@
 // floating point precission
 #define flt_t double  
 
-#define N_DIGITS		1048576 // number of digits in the format.
-#define N_FRAC_DIGITS	 0  // number of fractional digits.
 typedef unsigned char bcd_t; // BCD digit type.
 
 #define FFT_MUL_ALGORITHM

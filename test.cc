@@ -29,15 +29,20 @@ int main(int argc, char *argv[]) {
 	struct timeval t1, t2, t3;
 	double elapsed_time;
 
-	// initialize the fft library
-	createPhaseFactors();
-
 	// computes the Mersenne number 2^p - 1
 
 	// exponent
 	//unsigned long int p = 43112609; // largest known Mersenne number
-	unsigned long int p = 3021377; // 37th known Mersenne number
-	//unsigned long int p = 246;
+	//unsigned long int p = 3021377; // 37th known Mersenne number
+	unsigned long int p = 521;
+
+	// estimation of needed amount of figures
+	int nDigits = 1 << ((int) ceil(log2(p/log2(10))));
+	std::cout << "nDigits " << nDigits << std::endl;
+	BigNumber::N_DIGITS = nDigits;
+
+	// initialize the fft library
+	createPhaseFactors();
 
 	unsigned int nbits = 0; // number of bits of p
 	unsigned long int p2 = p;

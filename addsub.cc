@@ -30,7 +30,7 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 
 		// same sign case
 
-		for (i = 0; i < N_DIGITS; i++) {
+		for (i = 0; i < BigNumber::N_DIGITS; i++) {
 			r = carry + A.digits[i] + B.digits[i];
 			carry = (r > 9) ? 1 : 0;
 			C.digits[i] = (r - 10 * carry); // r % 10
@@ -47,7 +47,7 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 
 		M = NULL;
 
-		for (i = N_DIGITS - 1; i >= 0; i--) {
+		for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
 
 			if (A.digits[i] == B.digits[i])
 				continue;
@@ -63,13 +63,13 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 		}
 
 		if (!M) { //  both numbers have the same module, so the result is 0
-			memset(C.digits, 0, N_DIGITS * sizeof(bcd_t));
+			memset(C.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
 			C.isPositive = sign;
 			return;
 		}
 
 		// substracts the lower module number from the higher module one
-		for (i = 0; i < N_DIGITS; i++) {
+		for (i = 0; i < BigNumber::N_DIGITS; i++) {
 			r = M->digits[i] - (m->digits[i] + carry);
 			carry = (r < 0) ? 1 : 0;
 			C.digits[i] = (r + 10 * carry);
@@ -92,7 +92,7 @@ void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
 
 		// different sign case
 
-		for (i = 0; i < N_DIGITS; i++) {
+		for (i = 0; i < BigNumber::N_DIGITS; i++) {
 
 			r = carry + A.digits[i] + B.digits[i];
 			carry = (r > 9) ? 1 : 0;
@@ -109,7 +109,7 @@ void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
 
 		M = NULL;
 
-		for (i = N_DIGITS - 1; i >= 0; i--) {
+		for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
 
 			if (A.digits[i] == B.digits[i])
 				continue;
@@ -125,13 +125,13 @@ void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
 		}
 
 		if (!M) { // both numbers have the same module, so the result is 0
-			memset(C.digits, 0, N_DIGITS * sizeof(bcd_t));
+			memset(C.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
 			C.isPositive = piz;
 			return;
 		}
 
 		// substracts the lower module number from the higher module one
-		for (i = 0; i < N_DIGITS; i++) {
+		for (i = 0; i < BigNumber::N_DIGITS; i++) {
 
 			r = M->digits[i] - (m->digits[i] + carry);
 			carry = (r < 0) ? 1 : 0;

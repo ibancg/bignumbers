@@ -33,7 +33,7 @@ void flt2BigNumber(flt_t x, BigNumber &X) {
 
 	// prints the number in a string
 	sprintf(s, "%20.20f", x);
-	memset(X.digits, 0, N_DIGITS * sizeof(bcd_t));
+	memset(X.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
 
 	// and parses the string
 
@@ -54,11 +54,11 @@ void flt2BigNumber(flt_t x, BigNumber &X) {
 	unsigned int dot_index = ((dot) ? (dot - s) : ls); // posición del punto.
 
 	for (i = 0; i < dot_index; i++)
-		X.digits[N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i] - 48;
+		X.digits[BigNumber::N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i] - 48;
 
 	if (dot_index != ls)
 		for (i = dot_index + 1; i < ls; i++)
-			X.digits[N_FRAC_DIGITS - (i - dot_index) + exponent] = s[i] - 48;
+			X.digits[BigNumber::N_FRAC_DIGITS - (i - dot_index) + exponent] = s[i] - 48;
 }
 
 flt_t bigNumber2Flt(BigNumber &X) {
@@ -76,7 +76,7 @@ flt_t bigNumber2Flt(BigNumber &X) {
 	if (i < 0)
 		i = 0;
 
-	double exponent = pow(10, i - N_FRAC_DIGITS);
+	double exponent = pow(10, i - BigNumber::N_FRAC_DIGITS);
 
 	for (; i <= n; i++) {
 		x += X.digits[i] * exponent;
