@@ -31,6 +31,11 @@
 
 typedef unsigned char bcd_t; // BCD digit type.
 
+// advanced configuration (algorithm switches).
+
 #define FFT_MUL_ALGORITHM
+#define INVERSE_DIV_ALGORITHM
+#define INVERSE_NEWTON_SQRT_ALGORITHM
+#define INVERSE_NEWTON_SQRT4_ALGORITHM
 
 #endif

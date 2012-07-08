@@ -32,13 +32,13 @@ int main(int argc, char *argv[]) {
 	// computes the Mersenne number 2^p - 1
 
 	// exponent
-	unsigned long int p = 43112609; // largest known Mersenne number
+	//unsigned long int p = 43112609; // largest known Mersenne number
 	//unsigned long int p = 3021377; // 37th known Mersenne number
-	//unsigned long int p = 521;
+	unsigned long int p = 521;
 
 	// estimation of needed amount of figures
-	int nDigits = 1 << ((int) ceil(log2(p / log2(10))));
-	//	std::cout << "nDigits " << nDigits << std::endl;
+	int nDigits = 1 << ((int) ceil(log2(p/log2(10))));
+	std::cout << "nDigits " << nDigits << std::endl;
 	BigNumber::N_DIGITS = nDigits;
 
 	// initialize the fft library
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 		p2 >>= 1;
 
 		if (bit) {
-			mulFFT(X, AX, X);
+			mul(X, AX, X);
 			nmuls++;
 		}
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 
-		mulFFT(AX, AX, AX); // 2^(2^i)
+		mul(AX, AX, AX); // 2^(2^i)
 		nmuls++;
 
 		i++;
