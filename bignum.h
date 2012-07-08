@@ -86,14 +86,17 @@ public:
 	// A, B and C are overlappables
 	friend void mul(BigNumber& A, BigNumber& B, BigNumber& C);
 
-	// Computes C = A*B using the long multiplication algorithm
-	// A, B and C are overlappables
-	friend void mulLMA(BigNumber& A, BigNumber& B, BigNumber& C);
+	// Computes the inverse of A, B = 1/A
+	friend void inv(BigNumber& A, BigNumber& B);
 
-	// Computes C = A*B using the FFT multiplication algorithm
-	// A, B and C are overlappables
-	friend void mulFFT(BigNumber& A, BigNumber& B, BigNumber& C);
+	// Computes C = A/B
+	friend void div(BigNumber& A, BigNumber& B, BigNumber& C);
 
+	// Computes the square root
+	friend void sqrt(BigNumber& A, BigNumber& B);
+
+	// Computes the quartic root
+	friend void sqrt4(BigNumber& A, BigNumber& B);
 };
 
 #endif

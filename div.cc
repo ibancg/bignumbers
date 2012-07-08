@@ -22,9 +22,56 @@
 
 #include "bignum.h"
 
-// Computes the division by the classical method.
+using namespace std;
+
+// Computes the inverse.
+// The problem is equivalent to find a root of the function f(x) = A*x - 1,
+// so we can solve it by Newton's method doing the iteration x = x*(2 - A*x),
+// that doesn't need any division.
+void inv(BigNumber &A, BigNumber &B) {
+	static BigNumber x1, x2;
+	static BigNumber two("2");
+
+# 	ifdef DEBUG
+	cout << "INV";
+	cout.flush();
+#	endif
+
+	B.isPositive = A.isPositive;
+	memset(B.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t)); // cleaning the result
+
+	int ipc = findFirstNonZeroDigitIndex(A);
+
+	// if A has order n, 1/A has order -n, so we choose 10^(-n) as a starting
+	// point.
+	B.digits[BigNumber::N_FRAC_DIGITS - (ipc - BigNumber::N_FRAC_DIGITS) - 1] =
+			1;
+
+	for (int k = 0;; k++) {
+
+		mul(A, B, x1);
+		sub(two, x1, x2);
+		mul(B, x2, x1);
+
+# 		ifdef DEBUG
+		cout << '.';
+		cout.flush();
+#		endif
+
+		if (equals(B, x1)) // loop until convergence
+			break;
+
+		copy(x1, B);
+	}
+
+# 	ifdef DEBUG
+	cout << endl;
+#	endif
+}
+
+// Computes the division by the classical Long Division Algorithm.
 // A is overlappable with B or C.
-void div(BigNumber &A, BigNumber &B, BigNumber &C) {
+void divLDA(BigNumber &A, BigNumber &B, BigNumber &C) {
 	int i, j, n;
 	int na = 0, nb = 0, nab;
 	static bcd_t* AA = new bcd_t[BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS];
@@ -88,3 +135,13 @@ void div(BigNumber &A, BigNumber &B, BigNumber &C) {
 		C.digits[nab - i] = n;
 	}
 }
+
+void div(BigNumber &A, BigNumber &B, BigNumber &C) {
+#ifdef INVERSE_DIV_ALGORITHM
+	inv(B, C);
+	mul(A, C, C);
+#else
+	divLDA(A, B, C);
+#endif
+}
+
