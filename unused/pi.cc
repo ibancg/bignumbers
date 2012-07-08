@@ -38,10 +38,10 @@ void main() {
     //    gotoxy(1, 4);
 
     // paramos cuando dos iterantes consecutivos coinciden.
-    for (stop = true, j = N_DIGITS - 1; stop && (j >= 0); j--)
+    for (stop = true, j = BigNumber::N_DIGITS - 1; stop && (j >= 0); j--)
       if (pio.digits[j] != pi.digits[j]) stop = false;
 
-    printf("iteración %uª : %u decimales encontrados\n", i + 1, N_FRAC_DIGITS - j - 1);
+    printf("iteración %uª : %u decimales encontrados\n", i + 1, BigNumber::N_FRAC_DIGITS - j - 1);
 
     if (stop) break;
     copy(pio, pi);
@@ -79,7 +79,7 @@ void main() {
   
   printf("PI ~= ");
   pi.show();
-  printf("%u iteraciones para encontrar %u cifras decimales de PI.\n", i, N_FRAC_DIGITS);
+  printf("%u iteraciones para encontrar %u cifras decimales de PI.\n", i, BigNumber::N_FRAC_DIGITS);
       
 }
 
@@ -110,18 +110,18 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
   }
 
   /* Si el orden de magnitud del número es n, empiezo a iterar en 10^(n/2)*/
-  for (i = N_DIGITS - 1, n = -1; (i >= 0) && (n == -1); i--)
+  for (i = BigNumber::N_DIGITS - 1, n = -1; (i >= 0) && (n == -1); i--)
     if (A.digits[i]) n = i;
 
   xo.isPositive = true;
-  memset(xo.digits, 0, N_DIGITS*sizeof(bcd_t));
+  memset(xo.digits, 0, BigNumber::N_DIGITS*sizeof(bcd_t));
 
   if (n == -1) { // es un 0
     copy(xo, x);
     return;
   }
 
-  n = N_FRAC_DIGITS - (n - N_FRAC_DIGITS + 1)/2;
+  n = BigNumber::N_FRAC_DIGITS - (n - BigNumber::N_FRAC_DIGITS + 1)/2;
   xo.digits[n] = 1;
      
   //xo.Mostrar();
@@ -138,7 +138,7 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
     xo.isPositive = !xo.isPositive;
 
     // Si se repite el iterante, paramos.
-    for (stop = true, i = 0; (i < N_DIGITS) && stop; i++) 
+    for (stop = true, i = 0; (i < BigNumber::N_DIGITS) && stop; i++) 
       if (x.digits[i] != xo.digits[i]) stop = false;
     
     //    printf("SQRT : iteracion = %i\n", k);

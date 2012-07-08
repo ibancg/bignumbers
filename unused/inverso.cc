@@ -43,7 +43,7 @@ void Inverso(BigNumber &A, BigNumber &x)
   bool             stop;
 
   x.isPositive = A.isPositive;
-  memset(x.digits, 0, N_DIGITS*sizeof(bcd_t)); // limpiamos B.
+  memset(x.digits, 0, BigNumber::N_DIGITS*sizeof(bcd_t)); // limpiamos B.
 
   // cuento el número de cifras enteras.
   /*  for (i = NCIF - 1; (i >= 0) && !ipc; i--) if (A.C[i]) ipc = i;
@@ -58,7 +58,7 @@ void Inverso(BigNumber &A, BigNumber &x)
     sub(DOS, x1, x2);
     mul(x, x2, x1);
 
-    for (stop = true, i = 0; (i < N_DIGITS) && stop; i++) 
+    for (stop = true, i = 0; (i < BigNumber::N_DIGITS) && stop; i++) 
       if (x.digits[i] != x1.digits[i]) stop = false;
 
     if (stop) break;
@@ -99,18 +99,18 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
   }
 
   /* Si el orden de magnitud del número es n, empiezo a iterar en 10^(n/2)*/
-  for (i = N_DIGITS - 1, n = -1; (i >= 0) && (n == -1); i--)
+  for (i = BigNumber::N_DIGITS - 1, n = -1; (i >= 0) && (n == -1); i--)
     if (A.digits[i]) n = i;
 
   xo.isPositive = true;
-  memset(xo.digits, 0, N_DIGITS*sizeof(bcd_t));
+  memset(xo.digits, 0, BigNumber::N_DIGITS*sizeof(bcd_t));
 
   if (n == -1) { // es un 0
     copy(xo, x);
     return;
   }
 
-  n = N_FRAC_DIGITS - (n - N_FRAC_DIGITS + 1)/2;
+  n = BigNumber::N_FRAC_DIGITS - (n - BigNumber::N_FRAC_DIGITS + 1)/2;
   xo.digits[n] = 1;
      
   //xo.Mostrar();
@@ -127,7 +127,7 @@ void SqrtmBN(BigNumber &A, BigNumber &x)
     xo.isPositive = !xo.isPositive;
 
     // Si se repite el iterante, paramos.
-    for (stop = true, i = 0; (i < N_DIGITS) && stop; i++) 
+    for (stop = true, i = 0; (i < BigNumber::N_DIGITS) && stop; i++) 
       if (x.digits[i] != xo.digits[i]) stop = false;
     
     printf("SQRT : iteracion = %i\n", k);

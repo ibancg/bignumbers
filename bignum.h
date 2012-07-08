@@ -32,6 +32,9 @@ class BigNumber {
 
 public:
 
+	static long N_DIGITS; // number of digits in the format.
+	static long N_FRAC_DIGITS; // number of fractional digits.
+
 	bcd_t* digits;
 	bool isPositive; // positive/!negative flag
 

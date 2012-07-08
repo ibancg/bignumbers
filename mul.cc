@@ -35,13 +35,17 @@
 void mulLMA(BigNumber &A, BigNumber &B, BigNumber &C) {
 	int i, j;
 	unsigned long int r, c;
-	static bcd_t R[N_DIGITS + N_FRAC_DIGITS];
+	static bcd_t* R = new bcd_t[BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS];
 
-	memset(R, 0, (N_DIGITS + N_FRAC_DIGITS) * sizeof(bcd_t));
+	memset(R, 0,
+			(BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS) * sizeof(bcd_t));
 
-	for (i = 0; i < N_DIGITS; i++) {
-		for (j = 0, c = 0; (j < N_DIGITS) && ((j + i) < (N_DIGITS
-				+ N_FRAC_DIGITS)); j++) {
+	for (i = 0; i < BigNumber::N_DIGITS; i++) {
+		for (j = 0, c = 0;
+				(j < BigNumber::N_DIGITS)
+						&& ((j + i)
+								< (BigNumber::N_DIGITS
+										+ BigNumber::N_FRAC_DIGITS)); j++) {
 
 			r = R[j + i] + c + A.digits[j] * B.digits[i];
 			c = (r / 10);
@@ -49,7 +53,8 @@ void mulLMA(BigNumber &A, BigNumber &B, BigNumber &C) {
 		}
 
 		// decimal adjustment
-		for (; (j + i) < (N_DIGITS + N_FRAC_DIGITS); j++) {
+		for (; (j + i) < (BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS);
+				j++) {
 			r = R[j + i] + c;
 			c = (r / 10);
 			R[j + i] = (r - 10 * c);
@@ -57,7 +62,10 @@ void mulLMA(BigNumber &A, BigNumber &B, BigNumber &C) {
 	}
 
 	C.isPositive = !(A.isPositive ^ B.isPositive);
-	memcpy(C.digits, &R[N_FRAC_DIGITS], N_DIGITS * sizeof(bcd_t));
+	memcpy(C.digits, &R[BigNumber::N_FRAC_DIGITS],
+			BigNumber::N_DIGITS * sizeof(bcd_t));
+
+//	delete R;
 }
 
 // The former algorithm has order of n^2 time complexity, so it presents a
@@ -95,33 +103,32 @@ void mulLMA(BigNumber &A, BigNumber &B, BigNumber &C) {
 //
 // So, we need to compute only one FFT instead of 2.
 
-
 // FFT-based multiplication imlpementation
 void mulFFT(BigNumber &A, BigNumber &B, BigNumber &C) {
-	static Complex BC1[N_DIGITS << 1];
-	static Complex BC2[N_DIGITS << 1];
+	static Complex* BC1 = new Complex[BigNumber::N_DIGITS << 1];
+	static Complex* BC2 = new Complex[BigNumber::N_DIGITS << 1];
 	register int i;
 	Complex Xi, Xmi, X1, X2, X3;
 
 	// step 1: building a complex signal with the information of both signals.
-	for (i = 0; i < N_DIGITS; i++) {
+	for (i = 0; i < BigNumber::N_DIGITS; i++) {
 		BC1[i].r = A.digits[i]; // real part
 		BC1[i].i = B.digits[i]; // imaginary part
 	}
 
 	// cleans the higher section.
-	memset(&BC1[N_DIGITS], 0, N_DIGITS * sizeof(Complex));
+	memset(&BC1[BigNumber::N_DIGITS], 0, BigNumber::N_DIGITS * sizeof(Complex));
 
 	// step 2: transform.
-	fft(BC1, BC2, (N_DIGITS << 1));
+	fft(BC1, BC2, (BigNumber::N_DIGITS << 1));
 
 	// step 3: point-wise multiplication in frequency domain.
-	for (i = 0; i < (N_DIGITS << 1); i++) {
+	for (i = 0; i < (BigNumber::N_DIGITS << 1); i++) {
 
 		// we need to extract the individual transformed signals from the
 		// composited one.
 		Xi = BC2[i];
-		Xmi = BC2[(-i) & ((N_DIGITS << 1) - 1)];
+		Xmi = BC2[(-i) & ((BigNumber::N_DIGITS << 1) - 1)];
 		Xmi.i = -Xmi.i; // conjugate
 
 		X1.r = Xi.r + Xmi.r;
@@ -138,13 +145,14 @@ void mulFFT(BigNumber &A, BigNumber &B, BigNumber &C) {
 	}
 
 	// step 4: inverse transform.
-	ifft(BC1, BC2, (N_DIGITS << 1));
+	ifft(BC1, BC2, (BigNumber::N_DIGITS << 1));
 
 	unsigned long int c, ci;
 	flt_t x;
 
 	// step 5: cleaning and BCD adjust.
-	for (i = 0, c = 0; i < N_DIGITS + N_FRAC_DIGITS; i++) {
+	for (i = 0, c = 0; i < BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS;
+			i++) {
 
 		x = BC2[i].r; // drops imaginary part.
 
@@ -152,8 +160,8 @@ void mulFFT(BigNumber &A, BigNumber &B, BigNumber &C) {
 		ci = (unsigned long int) (c + round(x));
 
 		c = (ci / 10); // carry propagation
-		if (i >= N_FRAC_DIGITS)
-			C.digits[i - N_FRAC_DIGITS] = (ci - 10 * c); // ci % 10
+		if (i >= BigNumber::N_FRAC_DIGITS)
+			C.digits[i - BigNumber::N_FRAC_DIGITS] = (ci - 10 * c); // ci % 10
 	}
 
 	C.isPositive = !(A.isPositive ^ B.isPositive);
