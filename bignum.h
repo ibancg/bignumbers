@@ -30,6 +30,9 @@
 
 class BigNumber {
 
+private:
+	void parse(const char *);
+
 public:
 
 	static long N_DIGITS; // number of digits in the format.
@@ -42,15 +45,21 @@ public:
 
 	// Creates an empty bignumber
 	BigNumber();
+	BigNumber(const BigNumber&);
 
 	// Creates a bignumber from a string, example: N = BigNumber("-1786.059e36");
 	BigNumber(const char *);
+	BigNumber(double);
 
 	~BigNumber();
 
 	// Assignation operator
 	BigNumber& operator=(const BigNumber&);
 
+	// sets to 0
+	void clear();
+
+	double toDouble() const;
 
 	// Visualization. The parameter threshold configures the limit in number of
 	// digits below which all the digits are shown. If the number of digits is
@@ -58,46 +67,44 @@ public:
 	// used. When this short notation is used, shortNotationDigits digits are
 	// depicted in each group
 	void show(std::ostream& ostream = std::cout, int threshold = 15000,
-			int shortNotationDigits = 9);
-
-	// Conversions between bignumbers and floats
-	friend void flt2BigNumber(flt_t flt, BigNumber& bn);
-	friend flt_t bigNumber2Flt(BigNumber& bn);
+			int shortNotationDigits = 9) const;
 
 	// Tests if two BNs are equal
-	friend bool equals(BigNumber& A, BigNumber& B);
+	friend bool equals(const BigNumber& A, const BigNumber& B);
 
 	// Compares two BNs and returns the number of coincident digits
-	friend int compare(BigNumber& A, BigNumber& B);
+	friend int compare(const BigNumber& A, const BigNumber& B);
 
 	// First non-zero digit index.
-	friend int findFirstNonZeroDigitIndex(BigNumber& A);
+	int firstNonZeroDigitIndex() const;
 
 	// Operations.
 
 	// Computes C = A + B. If the result is zero, the sign can be explicitly set.
 	// A, B and C are overlappables.
-	friend void add(BigNumber& A, BigNumber& B, BigNumber& C, bool sign = true);
+	friend void add(const BigNumber& A, const BigNumber& B, BigNumber& C,
+			bool sign = true);
 
 	// Computes C = A - B. If the result is zero, the sign can be explicitly set.
 	// A, B and C are overlappables.
-	friend void sub(BigNumber& A, BigNumber& B, BigNumber& C, bool sign = true);
+	friend void sub(const BigNumber& A, const BigNumber& B, BigNumber& C,
+			bool sign = true);
 
 	// Computes C = A*B
 	// A, B and C are overlappables
-	friend void mul(BigNumber& A, BigNumber& B, BigNumber& C);
+	friend void mul(const BigNumber& A, const BigNumber& B, BigNumber& C);
 
 	// Computes the inverse of A, B = 1/A
-	friend void inv(BigNumber& A, BigNumber& B);
+	friend void inv(const BigNumber& A, BigNumber& B);
 
 	// Computes C = A/B
-	friend void div(BigNumber& A, BigNumber& B, BigNumber& C);
+	friend void div(const BigNumber& A, const BigNumber& B, BigNumber& C);
 
 	// Computes the square root
-	friend void sqrt(BigNumber& A, BigNumber& B);
+	friend void sqrt(const BigNumber& A, BigNumber& B);
 
 	// Computes the quartic root
-	friend void sqrt4(BigNumber& A, BigNumber& B);
+	friend void sqrt4(const BigNumber& A, BigNumber& B);
 };
 
 #endif

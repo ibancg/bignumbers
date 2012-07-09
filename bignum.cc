@@ -18,13 +18,12 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "bignum.h"
 
 long BigNumber::BigNumber::N_DIGITS = 32; // number of digits in the format.
 long BigNumber::BigNumber::N_FRAC_DIGITS = 16; // number of fractional digits.
-
-// Generic functions implementation
 
 // Constructs an empty BN.
 BigNumber::BigNumber() {
@@ -33,10 +32,13 @@ BigNumber::BigNumber() {
 	isPositive = true;
 }
 
+BigNumber::BigNumber(const BigNumber& b) {
+	*this = b;
+}
+
 // Constructs a BN by parsing the string representation
-BigNumber::BigNumber(const char *s) {
-	digits = new bcd_t[BigNumber::N_DIGITS];
-	memset(digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+void BigNumber::parse(const char *s) {
+	clear();
 
 	// if the first char is the minus sign, the number is negative
 	isPositive = (*s != '-');
@@ -55,7 +57,8 @@ BigNumber::BigNumber(const char *s) {
 	unsigned int i;
 
 	for (i = 0; i < dot_index; i++)
-		digits[BigNumber::N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i] - 48;
+		digits[BigNumber::N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i]
+				- 48;
 
 	int index;
 	if (dot_index != ls)
@@ -65,6 +68,20 @@ BigNumber::BigNumber(const char *s) {
 				digits[index] = s[i] - 48;
 			}
 		}
+}
+
+BigNumber::BigNumber(const char *s) {
+	digits = new bcd_t[BigNumber::N_DIGITS];
+	parse(s);
+}
+
+BigNumber::BigNumber(double b) {
+	static char buffer[40];
+
+	// prints the number in a string
+	digits = new bcd_t[BigNumber::N_DIGITS];
+	sprintf(buffer, "%20.20f", b);
+	parse(buffer);
 }
 
 // Constructs an empty BN.
@@ -84,9 +101,39 @@ BigNumber& BigNumber::operator=(const BigNumber& a) {
 	return *this;
 }
 
+void BigNumber::clear() {
+	memset(digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+	isPositive = true;
+}
+
+double BigNumber::toDouble() const {
+	register int i;
+	double x;
+
+	int n = firstNonZeroDigitIndex();
+
+	if (n == -1) {
+		return 0.0;
+	}
+
+	x = 0.0;
+	static const int N_SIGNIFICANT_DIGITS = 20;
+	i = n - N_SIGNIFICANT_DIGITS + 1;
+	if (i < 0)
+		i = 0;
+
+	double exponent = pow(10, i - BigNumber::N_FRAC_DIGITS);
+
+	for (; i <= n; i++) {
+		x += digits[i] * exponent;
+		exponent *= 10.0;
+	}
+
+	return x;
+}
 
 void BigNumber::show(std::ostream& ostream, int threshold,
-		int shortNotationDigits) {
+		int shortNotationDigits) const {
 	int i, j;
 	long int ni = 0; // number of integer digits
 	long int nf = 0; // number of fractional digits
@@ -163,21 +210,21 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 			<< " fractional)" << std::endl;
 }
 
-int findFirstNonZeroDigitIndex(BigNumber &A) {
+int BigNumber::firstNonZeroDigitIndex() const {
 	for (register int i = BigNumber::N_DIGITS - 1; i >= 0; i--)
-		if (A.digits[i])
+		if (digits[i])
 			return i;
 	return -1; // special case: zero
 }
 
-bool equals(BigNumber &A, BigNumber &B) {
+bool equals(const BigNumber &A, const BigNumber &B) {
 	for (register int i = 0; i < BigNumber::N_DIGITS; i++)
 		if (A.digits[i] != B.digits[i])
 			return false;
 	return true;
 }
 
-int compare(BigNumber &A, BigNumber &B) {
+int compare(const BigNumber &A, const BigNumber &B) {
 	for (register int i = BigNumber::N_DIGITS - 1; i >= 0; i--)
 		if (A.digits[i] != B.digits[i])
 			return (BigNumber::N_DIGITS - i);

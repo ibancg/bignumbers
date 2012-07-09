@@ -21,7 +21,7 @@
 #include "bignum.h"
 
 // Addition. Simple implementation.
-void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
+void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 	register int i;
 	char r;
 	char carry = 0;
@@ -42,10 +42,8 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 
 		// different sign case
 
-		BigNumber* M; // higher module BN
-		BigNumber* m; // lower module BN
-
-		M = NULL;
+		const BigNumber* M = 0x0; // higher module BN
+		const BigNumber* m = 0x0; // lower module BN
 
 		for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
 
@@ -83,7 +81,7 @@ void add(BigNumber &A, BigNumber &B, BigNumber &C, bool sign) {
 }
 
 // Substraction. Simple implementation.
-void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
+void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 	register int i;
 	char r;
 	char carry = 0;
@@ -104,10 +102,8 @@ void sub(BigNumber &A, BigNumber &B, BigNumber &C, bool piz) {
 
 		// same sign case
 
-		BigNumber* M; // higher module BN
-		BigNumber* m; // lower module BN
-
-		M = NULL;
+		const BigNumber* M = 0x0; // higher module BN
+		const BigNumber* m = 0x0; // lower module BN
 
 		for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
 

@@ -11,7 +11,7 @@ using namespace std;
 // converges to the inverse of the square root and doesn't need to compute any
 // division in the time-critical loop.
 // A and x NO overlappables.
-void sqrtInv(BigNumber &A, BigNumber &x) {
+void sqrtInv(const BigNumber &A, BigNumber &x) {
 	static BigNumber xo("0");
 	static BigNumber _1p2("0.5");
 	static BigNumber _3("3");
@@ -31,7 +31,7 @@ void sqrtInv(BigNumber &A, BigNumber &x) {
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
-			- (findFirstNonZeroDigitIndex(A) - BigNumber::N_FRAC_DIGITS + 1) / 2] =
+			- (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS + 1) / 2] =
 			1;
 
 	for (int k = 0;; k++) {
@@ -66,7 +66,7 @@ void sqrtInv(BigNumber &A, BigNumber &x) {
 
 // Square root computation by Newton's method. (F(x) = x^2 - A).
 // A and x NO overlappables.
-void sqrtNoInv(BigNumber &A, BigNumber &x) {
+void sqrtNoInv(const BigNumber &A, BigNumber &x) {
 	static BigNumber x2, Fx, DFx, xo;
 
 # ifdef DEBUG
@@ -84,12 +84,11 @@ void sqrtNoInv(BigNumber &A, BigNumber &x) {
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
-			+ (findFirstNonZeroDigitIndex(A) - BigNumber::N_FRAC_DIGITS) / 2] =
-			1;
+			+ (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS) / 2] = 1;
 
 	for (;;) {
 
-	    x = xo;
+		x = xo;
 		mul(x, x, x2);
 		sub(x2, A, Fx, false); // F(x) = x^2 - A
 
@@ -136,7 +135,7 @@ void sqrtNoInv(BigNumber &A, BigNumber &x) {
 // converges to the inverse of the quartic root and doesn't need to compute any
 // division in the time-critical loop.
 // A and x NO overlappables.
-void sqrt4Inv(BigNumber &A, BigNumber &x) {
+void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 	static BigNumber xo;
 	static BigNumber _1p4("0.25");
 	static BigNumber _5("5");
@@ -156,7 +155,7 @@ void sqrt4Inv(BigNumber &A, BigNumber &x) {
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
-			- (findFirstNonZeroDigitIndex(A) - BigNumber::N_FRAC_DIGITS + 1) / 4] =
+			- (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS + 1) / 4] =
 			1;
 
 	for (int k = 0;; k++) {
@@ -189,7 +188,7 @@ void sqrt4Inv(BigNumber &A, BigNumber &x) {
 
 // Quartic root extraction by Newton's method. (F(x) = x^4 - A).
 // A and x NO overlappables.
-void sqrt4NoInv(BigNumber &A, BigNumber &x) {
+void sqrt4NoInv(const BigNumber &A, BigNumber &x) {
 	static BigNumber x1, x2, Fx, DFx, xo;
 
 	if (!A.isPositive) {
@@ -202,8 +201,7 @@ void sqrt4NoInv(BigNumber &A, BigNumber &x) {
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
-			+ (findFirstNonZeroDigitIndex(A) - BigNumber::N_FRAC_DIGITS) / 4] =
-			1;
+			+ (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS) / 4] = 1;
 
 	for (;;) {
 
@@ -243,7 +241,7 @@ void sqrt4NoInv(BigNumber &A, BigNumber &x) {
 	}
 }
 
-void sqrt(BigNumber &A, BigNumber &x) {
+void sqrt(const BigNumber &A, BigNumber &x) {
 #ifdef INVERSE_NEWTON_SQRT_ALGORITHM
 	sqrtInv(A, x);
 #else
@@ -251,7 +249,7 @@ void sqrt(BigNumber &A, BigNumber &x) {
 #endif
 }
 
-void sqrt4(BigNumber &A, BigNumber &x) {
+void sqrt4(const BigNumber &A, BigNumber &x) {
 #ifdef INVERSE_NEWTON_SQRT4_ALGORITHM
 	sqrt4Inv(A, x);
 #else
