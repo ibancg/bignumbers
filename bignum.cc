@@ -23,8 +23,8 @@
 
 #include "bignum.h"
 
-long BigNumber::BigNumber::N_DIGITS = 32; // number of digits in the format.
-long BigNumber::BigNumber::N_FRAC_DIGITS = 16; // number of fractional digits.
+long BigNumber::N_DIGITS = 32; // number of digits in the format.
+long BigNumber::N_FRAC_DIGITS = 16; // number of fractional digits.
 
 // Constructs an empty BN.
 BigNumber::BigNumber() :

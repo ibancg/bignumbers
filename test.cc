@@ -22,13 +22,16 @@
 #include "fft.h"
 #include "bignum.h"
 
+/**
+ * Estimation of PI using a 4th order Borwein's algorithm (1985)
+ */
 int main(int argc, char *argv[]) {
 
 	std::string fileName = "output.txt";
 	struct timeval t1, t2, t3;
 	double elapsed_time;
 
-	BigNumber::N_DIGITS = (1 << 10);
+	BigNumber::N_DIGITS = (1 << 20);
 	BigNumber::N_FRAC_DIGITS = BigNumber::N_DIGITS * 0.99;
 
 	// initialize the fft library
@@ -96,7 +99,7 @@ int main(int argc, char *argv[]) {
 		add(x1, x3, x1); // (1 + y + y^2)
 		mul(y, x1, x3);     // y*(1 + y + y^2)
 		mul(ACP2, x3, x1); // 2^(2*i + 1)*y*(1 + y + y^2)
-		sub(x2, x1, a); // (1 + y)^4*a - 2^(2*i + 1)*y*(1 + y + y^2)
+		sub(x2, x1, a); // a*(1 + y)^4 - 2^(2*i + 1)*y*(1 + y + y^2)
 
 	}
 
