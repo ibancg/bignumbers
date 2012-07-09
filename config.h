@@ -26,9 +26,6 @@
 // debug mode.
 #define DEBUG
 
-// floating point precission
-#define flt_t double  
-
 typedef unsigned char bcd_t; // BCD digit type.
 
 // advanced configuration (algorithm switches).

@@ -19,3 +19,5 @@ syntax: regexp
 ^results/mersenne-43112609\.txt$
 syntax: regexp
 ^\.depend$
+syntax: regexp
+^results/pi-1038083\.txt$

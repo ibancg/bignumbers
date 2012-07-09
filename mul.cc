@@ -32,7 +32,7 @@
 #include "fft.h"
 
 // Classical algorithm.
-void mulLMA(BigNumber &A, BigNumber &B, BigNumber &C) {
+void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	int i, j;
 	unsigned long int r, c;
 	static bcd_t* R = new bcd_t[BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS];
@@ -104,20 +104,23 @@ void mulLMA(BigNumber &A, BigNumber &B, BigNumber &C) {
 // So, we need to compute only one FFT instead of 2.
 
 // FFT-based multiplication imlpementation
-void mulFFT(BigNumber &A, BigNumber &B, BigNumber &C) {
-	static Complex* BC1 = new Complex[BigNumber::N_DIGITS << 1];
-	static Complex* BC2 = new Complex[BigNumber::N_DIGITS << 1];
+void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
+	static std::complex<double>* BC1 =
+			new std::complex<double>[BigNumber::N_DIGITS << 1];
+	static std::complex<double>* BC2 =
+			new std::complex<double>[BigNumber::N_DIGITS << 1];
 	register int i;
-	Complex Xi, Xmi, X1, X2, X3;
+	std::complex<double> Xi, Xmi, X1, X2, X3;
 
 	// step 1: building a complex signal with the information of both signals.
 	for (i = 0; i < BigNumber::N_DIGITS; i++) {
-		BC1[i].r = A.digits[i]; // real part
-		BC1[i].i = B.digits[i]; // imaginary part
+		BC1[i].real(A.digits[i]); // real part
+		BC1[i].imag(B.digits[i]); // imaginary part
 	}
 
 	// cleans the higher section.
-	memset(&BC1[BigNumber::N_DIGITS], 0, BigNumber::N_DIGITS * sizeof(Complex));
+	memset(&BC1[BigNumber::N_DIGITS], 0,
+			BigNumber::N_DIGITS * sizeof(std::complex<double>));
 
 	// step 2: transform.
 	fft(BC1, BC2, (BigNumber::N_DIGITS << 1));
@@ -129,32 +132,29 @@ void mulFFT(BigNumber &A, BigNumber &B, BigNumber &C) {
 		// composited one.
 		Xi = BC2[i];
 		Xmi = BC2[(-i) & ((BigNumber::N_DIGITS << 1) - 1)];
-		Xmi.i = -Xmi.i; // conjugate
+		Xmi.imag(-Xmi.imag()); // conjugate
 
-		X1.r = Xi.r + Xmi.r;
-		X1.i = Xi.i + Xmi.i; // X1 = Xi + Xmi
-		X2.r = Xi.r - Xmi.r;
-		X2.i = Xi.i - Xmi.i; // X2 = Xi - Xmi
+		X1 = Xi + Xmi;
+		X2 = Xi - Xmi;
 
 		// now let us multiply sample by sample.
-		X3.r = X1.r * X2.r - X1.i * X2.i;
-		X3.i = X1.r * X2.i + X1.i * X2.r; // X3 = X1*X2;
+		X3 = X1 * X2;
 
-		BC1[i].r = 0.25 * X3.i;
-		BC1[i].i = -0.25 * X3.r;
+		BC1[i].real() = 0.25 * X3.imag();
+		BC1[i].imag() = -0.25 * X3.real();
 	}
 
 	// step 4: inverse transform.
 	ifft(BC1, BC2, (BigNumber::N_DIGITS << 1));
 
 	unsigned long int c, ci;
-	flt_t x;
+	double x;
 
 	// step 5: cleaning and BCD adjust.
 	for (i = 0, c = 0; i < BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS;
 			i++) {
 
-		x = BC2[i].r; // drops imaginary part.
+		x = BC2[i].real(); // drops imaginary part.
 
 		// rounding
 		ci = (unsigned long int) (c + round(x));
@@ -167,7 +167,7 @@ void mulFFT(BigNumber &A, BigNumber &B, BigNumber &C) {
 	C.isPositive = !(A.isPositive ^ B.isPositive);
 }
 
-void mul(BigNumber &A, BigNumber &B, BigNumber &C) {
+void mul(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 #ifndef FFT_MUL_ALGORITHM
 	return mulLMA(A, B, C);
 #else

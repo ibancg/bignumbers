@@ -36,39 +36,39 @@ int main(int argc, char *argv[]) {
 
 	gettimeofday(&t1, NULL);
 
-	printf("------- Cálculo del número PI -------\n");
-	printf("Calculando primeros iterantes...\n");
+	std::cout << "------- PI number computation -------" << std::endl;
+	std::cout << "Computing first iterants ..." << std::endl;
 
-	BigNumber UNO("1");
-	BigNumber ACP2("2"); // acumulador de potencias de 2.
-	BigNumber y, a, x1, x2, x3, pi, pio;
+	BigNumber UNO = 1.0;
+	BigNumber ACP2 = 2.0; // powers of 2 accumulator.
+	BigNumber y, a, x1, x2, x3, pio;
 	bool stop;
 	int i, j;
 
-	pi = BigNumber("0");
+	BigNumber pi = 0.0;
 
 	sqrt(ACP2, x2);
-	x2.show();
 	sub(x2, UNO, y); // y0 = sqrt(2) - 1
 
 	add(x2, x2, x2); // 2*sqrt(2)
 	add(x2, x2, x2); // 4*sqrt(2)
 
-	a = BigNumber("6");
+	a = 6.0;
 	sub(a, x2, a);  // a0 = 6 - 4*sqrt(2)
-	printf("...OK\n");
+	std::cout << "...OK" << std::endl;
 
 	for (i = 0;; i++) {
 
 		inv(a, pio);
 
-		// paramos cuando dos iterantes consecutivos coinciden.
+		// we stop when two consecutive iterants match up
 		for (stop = true, j = BigNumber::N_DIGITS - 1; stop && (j >= 0); j--)
 			if (pio.digits[j] != pi.digits[j])
 				stop = false;
 
-		printf("iteración %uª : %u decimales encontrados\n", i + 1,
-				BigNumber::N_FRAC_DIGITS - j - 1);
+		std::cout << "iteration " << (i + 1) << " : "
+				<< (BigNumber::N_FRAC_DIGITS - j - 1) << " decimals found"
+				<< std::endl;
 
 		if (stop)
 			break;
@@ -77,11 +77,6 @@ int main(int argc, char *argv[]) {
 		mul(y, y, x1);   // y^2
 		mul(x1, x1, x2); // y^4
 		sub(UNO, x2, x1); // 1 - y^4
-
-		/*    Sqrt4BN(x1, x2); // (1 - y^4)^(1/4);
-		 RestaBN(UNO, x2, x1); // (1 - (1 - y^4)^(1/4))
-		 SumaBN(UNO, x2, x3);  // (1 + (1 - y^4)^(1/4))
-		 DivBN(x1, x3, y);     // (1 - (1 - y^4)^(1/4))/(1 + (1 - y^4)^(1/4))*/
 
 		sqrt(x1, x2); // (1 - y^4)^(1/2);
 		sqrt(x2, x1); // (1 - y^4)^(1/4);
@@ -109,8 +104,8 @@ int main(int argc, char *argv[]) {
 
 	std::cout << "result = ";
 	pi.show();
-	printf("%u iteraciones para encontrar %u cifras decimales de PI.\n", i,
-			BigNumber::N_FRAC_DIGITS);
+	std::cout << i << " iterations needed to find " << BigNumber::N_FRAC_DIGITS
+			<< " decimal digits of PI." << std::endl;
 	timersub(&t2, &t1, &t3);
 	elapsed_time = t3.tv_sec + 1e-6 * t3.tv_usec;
 	std::cout << "computation time: " << elapsed_time << " seconds"

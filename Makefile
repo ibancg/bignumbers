@@ -2,7 +2,7 @@
 PROJECT  = bignum
 SOURCES   = *.cc
 
-C_FLAGS   = -Wall -g $(INCDIR)
+C_FLAGS   = -Wall -g -O2 $(INCDIR)
 LIBRARIES = -lm -lstdc++
 
 SRCS = $(wildcard $(SOURCES))

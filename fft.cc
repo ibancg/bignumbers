@@ -17,24 +17,22 @@
  */
 
 #include "config.h"
-#include "complex.h"
 #include "fft.h"
 #include "bignum.h"
 
 // Phase factors.
-Complex* WN;
+std::complex<double>* WN;
 
 // Optimization: computes the phase factor table WN[i] = exp(-j*k), with
 // k = 0..pi (N samples)
 void createPhaseFactors() {
 
-	WN = new Complex[BigNumber::N_DIGITS];
-	flt_t alpha;
+	WN = new std::complex<double>[BigNumber::N_DIGITS];
+	double alpha;
 
 	for (int i = 0; i < BigNumber::N_DIGITS; i++) {
 		alpha = -i * M_PI / BigNumber::N_DIGITS;
-		WN[i].r = cos(alpha);
-		WN[i].i = sin(alpha);
+		WN[i] = std::complex<double>(cos(alpha), sin(alpha));
 	}
 }
 
@@ -42,9 +40,10 @@ void destroyPhaseFactors() {
 	delete[] WN;
 }
 
-void fft(Complex *x, Complex *X, unsigned long int N, unsigned long int offset,
-		unsigned long int d1, unsigned long int step) {
-	Complex X1, X2;
+void fft(std::complex<double>* x, std::complex<double>* X, unsigned long int N,
+		unsigned long int offset, unsigned long int d1,
+		unsigned long int step) {
+	std::complex<double> X1, X2;
 	unsigned long int Np2 = (N >> 1); // N/2
 	register unsigned long int a, b, c, q;
 
@@ -52,10 +51,10 @@ void fft(Complex *x, Complex *X, unsigned long int N, unsigned long int offset,
 
 		X1 = x[offset];
 		X2 = x[offset + step];
-		X[d1].r = X1.r + X2.r;
-		X[d1].i = X1.i + X2.i; // X[d1] = X1 + X2
-		X[d1 + Np2].r = X1.r - X2.r;
-		X[d1 + Np2].i = X1.i - X2.i; // X[d1 + Np2] = X1 - X2
+		X[d1].real() = X1.real() + X2.real();
+		X[d1].imag() = X1.imag() + X2.imag(); // X[d1] = X1 + X2
+		X[d1 + Np2].real() = X1.real() - X2.real();
+		X[d1 + Np2].imag() = X1.imag() - X2.imag(); // X[d1 + Np2] = X1 - X2
 		return;
 	}
 
@@ -68,31 +67,32 @@ void fft(Complex *x, Complex *X, unsigned long int N, unsigned long int offset,
 		b = a + Np2;
 
 		X1 = X[a];
-		X2.r = X[b].r * WN[c].r - X[b].i * WN[c].i;
-		X2.i = X[b].r * WN[c].i + X[b].i * WN[c].r; // X2 = X[b]*WN[c]
+		X2.real() = X[b].real() * WN[c].real() - X[b].imag() * WN[c].imag();
+		X2.imag() = X[b].real() * WN[c].imag() + X[b].imag() * WN[c].real(); // X2 = X[b]*WN[c]
 
-		X[a].r = X1.r + X2.r;
-		X[a].i = X1.i + X2.i; // X[a] = X1 + X2
-		X[b].r = X1.r - X2.r;
-		X[b].i = X1.i - X2.i; // X[b] = X1 - X2
+		X[a].real() = X1.real() + X2.real();
+		X[a].imag() = X1.imag() + X2.imag(); // X[a] = X1 + X2
+		X[b].real() = X1.real() - X2.real();
+		X[b].imag() = X1.imag() - X2.imag(); // X[b] = X1 - X2
 	}
 }
 
-void ifft(Complex *X, Complex *x, unsigned long int N,
-		unsigned long int offset, unsigned long int d1, unsigned long int step) {
-	Complex x1, x2;
+void ifft(std::complex<double>* X, std::complex<double>* x, unsigned long int N,
+		unsigned long int offset, unsigned long int d1,
+		unsigned long int step) {
+	std::complex<double> x1, x2;
 	unsigned long int Np2 = (N >> 1); // N/2
-	flt_t _1pN = 1.0 / N;
+	double _1pN = 1.0 / N;
 	register unsigned long int a, b, c, q;
 
 	if (N == 2) { // Butterfly for N = 2;
 
 		x1 = X[offset];
 		x2 = X[offset + step];
-		x[d1].r = x1.r + x2.r;
-		x[d1].i = x1.i + x2.i; // x[d1] = x1 + x2
-		x[d1 + Np2].r = x1.r - x2.r;
-		x[d1 + Np2].i = x1.i - x2.i; // x[d1 + Np2] = x1 - x2
+		x[d1].real() = x1.real() + x2.real();
+		x[d1].imag() = x1.imag() + x2.imag(); // x[d1] = x1 + x2
+		x[d1 + Np2].real() = x1.real() - x2.real();
+		x[d1 + Np2].imag() = x1.imag() - x2.imag(); // x[d1 + Np2] = x1 - x2
 
 		return;
 	}
@@ -106,13 +106,13 @@ void ifft(Complex *X, Complex *x, unsigned long int N,
 		b = a + Np2;
 
 		x1 = x[a];
-		x2.r = x[b].r * WN[c].r + x[b].i * WN[c].i;
-		x2.i = x[b].i * WN[c].r - x[b].r * WN[c].i; // x2 = x[b]*WN*[c]
+		x2.real() = x[b].real() * WN[c].real() + x[b].imag() * WN[c].imag();
+		x2.imag() = x[b].imag() * WN[c].real() - x[b].real() * WN[c].imag(); // x2 = x[b]*WN*[c]
 
-		x[a].r = x1.r + x2.r;
-		x[a].i = x1.i + x2.i; // x[a] = x1 + x2
-		x[b].r = x1.r - x2.r;
-		x[b].i = x1.i - x2.i; // x[b] = x1 - x2
+		x[a].real() = x1.real() + x2.real();
+		x[a].imag() = x1.imag() + x2.imag(); // x[a] = x1 + x2
+		x[b].real() = x1.real() - x2.real();
+		x[b].imag() = x1.imag() - x2.imag(); // x[b] = x1 - x2
 	}
 
 	if (step != 1)
@@ -120,7 +120,7 @@ void ifft(Complex *X, Complex *x, unsigned long int N,
 
 	_1pN = 1.0 / N;
 	for (q = 0; q < N; q++) {
-		x[q].r = x[q].r * _1pN;
-		x[q].i = x[q].i * _1pN; // x[q] = x[q]/N
+		x[q].real() = x[q].real() * _1pN;
+		x[q].imag() = x[q].imag() * _1pN; // x[q] = x[q]/N
 	}
 }

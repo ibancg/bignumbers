@@ -28,7 +28,7 @@ using namespace std;
 // The problem is equivalent to find a root of the function f(x) = A*x - 1,
 // so we can solve it by Newton's method doing the iteration x = x*(2 - A*x),
 // that doesn't need any division.
-void inv(BigNumber &A, BigNumber &B) {
+void inv(const BigNumber &A, BigNumber &B) {
 	static BigNumber x1, x2;
 	static BigNumber two("2");
 
@@ -40,7 +40,7 @@ void inv(BigNumber &A, BigNumber &B) {
 	B.isPositive = A.isPositive;
 	memset(B.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t)); // cleaning the result
 
-	int ipc = findFirstNonZeroDigitIndex(A);
+	int ipc = A.firstNonZeroDigitIndex();
 
 	// if A has order n, 1/A has order -n, so we choose 10^(-n) as a starting
 	// point.
@@ -71,7 +71,7 @@ void inv(BigNumber &A, BigNumber &B) {
 
 // Computes the division by the classical Long Division Algorithm.
 // A is overlappable with B or C.
-void divLDA(BigNumber &A, BigNumber &B, BigNumber &C) {
+void divLDA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	int i, j, n;
 	int na = 0, nb = 0, nab;
 	static bcd_t* AA = new bcd_t[BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS];
@@ -136,7 +136,7 @@ void divLDA(BigNumber &A, BigNumber &B, BigNumber &C) {
 	}
 }
 
-void div(BigNumber &A, BigNumber &B, BigNumber &C) {
+void div(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 #ifdef INVERSE_DIV_ALGORITHM
 	inv(B, C);
 	mul(A, C, C);
