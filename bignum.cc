@@ -21,14 +21,16 @@
 
 #include "bignum.h"
 
-long BigNumber::BigNumber::N_DIGITS = 512; // number of digits in the format.
-long BigNumber::BigNumber::N_FRAC_DIGITS = 0; // number of fractional digits.
+long BigNumber::BigNumber::N_DIGITS = 32; // number of digits in the format.
+long BigNumber::BigNumber::N_FRAC_DIGITS = 16; // number of fractional digits.
 
 // Generic functions implementation
 
 // Constructs an empty BN.
 BigNumber::BigNumber() {
-	digits = 0;
+	digits = new bcd_t[BigNumber::N_DIGITS];
+	memset(digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+	isPositive = true;
 }
 
 // Constructs a BN by parsing the string representation
@@ -67,10 +69,21 @@ BigNumber::BigNumber(const char *s) {
 
 // Constructs an empty BN.
 BigNumber::~BigNumber() {
-	if (digits != 0) {
-		delete[] digits;
-	}
+	delete[] digits;
 }
+
+BigNumber& BigNumber::operator=(const BigNumber& a) {
+
+	if ((digits == 0x0) && (a.digits != 0x0)) {
+		digits = new bcd_t[BigNumber::N_DIGITS];
+	}
+
+	memcpy(digits, a.digits, BigNumber::N_DIGITS * sizeof(bcd_t));
+	isPositive = a.isPositive;
+
+	return *this;
+}
+
 
 void BigNumber::show(std::ostream& ostream, int threshold,
 		int shortNotationDigits) {
@@ -148,11 +161,6 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 
 	ostream << "::(" << (ni + nf) << " digits, " << ni << " integer and " << nf
 			<< " fractional)" << std::endl;
-}
-
-void copy(BigNumber &A, BigNumber &B) {
-	memcpy(B.digits, A.digits, BigNumber::N_DIGITS * sizeof(bcd_t));
-	B.isPositive = A.isPositive;
 }
 
 int findFirstNonZeroDigitIndex(BigNumber &A) {

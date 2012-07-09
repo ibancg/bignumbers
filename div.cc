@@ -61,7 +61,7 @@ void inv(BigNumber &A, BigNumber &B) {
 		if (equals(B, x1)) // loop until convergence
 			break;
 
-		copy(x1, B);
+		B = x1;
 	}
 
 # 	ifdef DEBUG

@@ -12,7 +12,7 @@ using namespace std;
 // division in the time-critical loop.
 // A and x NO overlappables.
 void sqrtInv(BigNumber &A, BigNumber &x) {
-	static BigNumber xo;
+	static BigNumber xo("0");
 	static BigNumber _1p2("0.5");
 	static BigNumber _3("3");
 
@@ -36,7 +36,7 @@ void sqrtInv(BigNumber &A, BigNumber &x) {
 
 	for (int k = 0;; k++) {
 
-		copy(xo, x);
+		x = xo;
 		mul(x, x, xo);
 		mul(xo, A, xo); // A*x^2
 		sub(xo, _3, xo, false); // (A*x^2 - 3)
@@ -89,7 +89,7 @@ void sqrtNoInv(BigNumber &A, BigNumber &x) {
 
 	for (;;) {
 
-		copy(xo, x);
+	    x = xo;
 		mul(x, x, x2);
 		sub(x2, A, Fx, false); // F(x) = x^2 - A
 
@@ -161,7 +161,7 @@ void sqrt4Inv(BigNumber &A, BigNumber &x) {
 
 	for (int k = 0;; k++) {
 
-		copy(xo, x);
+		x = xo;
 		mul(x, x, xo);
 		mul(xo, xo, xo); // x^4
 		mul(xo, A, xo); // A*x^4
@@ -207,7 +207,7 @@ void sqrt4NoInv(BigNumber &A, BigNumber &x) {
 
 	for (;;) {
 
-		copy(xo, x);
+		x = xo;
 		mul(x, x, x1); // x^2
 		mul(x, x1, x1); // x^3
 		mul(x, x1, x2); // x^4
