@@ -25,86 +25,100 @@
 int main(int argc, char *argv[]) {
 
 	std::string fileName = "output.txt";
-
 	struct timeval t1, t2, t3;
 	double elapsed_time;
 
-	// computes the Mersenne number 2^p - 1
-
-	// exponent
-	//unsigned long int p = 43112609; // largest known Mersenne number
-	//unsigned long int p = 3021377; // 37th known Mersenne number
-	unsigned long int p = 521;
-
-	// estimation of needed amount of figures
-	int nDigits = 1 << ((int) ceil(log2(p/log2(10))));
-	std::cout << "nDigits " << nDigits << std::endl;
-	BigNumber::N_DIGITS = nDigits;
+	BigNumber::N_DIGITS = (1 << 16);
+	BigNumber::N_FRAC_DIGITS = BigNumber::N_DIGITS * 0.99;
 
 	// initialize the fft library
 	createPhaseFactors();
 
-	unsigned int nbits = 0; // number of bits of p
-	unsigned long int p2 = p;
-	while (p2 != 0) { // count the number of bits of p
-		p2 >>= 1;
-		nbits++;
-	}
-
-	unsigned int nmuls = 0; // number of needed muls
-
-	BigNumber X = BigNumber("1");
-	BigNumber AX = BigNumber("2");
-
 	gettimeofday(&t1, NULL);
-	std::cout << "Evaluating the Mersenne number 2^" << p << " - 1"
-			<< std::endl;
-	std::cout << "0% completed" << std::endl;
 
-	// the algorithm finds first the binary representation of p = (bn ... b1 b0)
-	// so p = b0*2^0 + b1*2^1 + ... + bn*2^n, that is,
-	// 2^p = 2^(b0*2^0)*2^(b2*2^1)*...*2^(bn*2^n)
-	// the 2^(2^i) quantity can be easily computed in a loop by multiplying an
-	// acumulator by itself in each iteration (starting with 2)
-	p2 = p;
-	int i = 0;
-	while (p2 != 0) { // starts process
-		int bit = p2 & 1;
-		p2 >>= 1;
+	printf("------- Cálculo del número PI -------\n");
+	printf("Calculando primeros iterantes...\n");
 
-		if (bit) {
-			mul(X, AX, X);
-			nmuls++;
-		}
+	BigNumber UNO("1");
+	BigNumber ACP2("2"); // acumulador de potencias de 2.
+	BigNumber y, a, x1, x2, x3, pi, pio;
+	bool stop;
+	int i, j;
 
-		if (p == 0) {
+	pi = BigNumber("0");
+
+	sqrt(ACP2, x2);
+	x2.show();
+	sub(x2, UNO, y); // y0 = sqrt(2) - 1
+
+	add(x2, x2, x2); // 2*sqrt(2)
+	add(x2, x2, x2); // 4*sqrt(2)
+
+	a = BigNumber("6");
+	sub(a, x2, a);  // a0 = 6 - 4*sqrt(2)
+	printf("...OK\n");
+
+	for (i = 0;; i++) {
+
+		inv(a, pio);
+
+		// paramos cuando dos iterantes consecutivos coinciden.
+		for (stop = true, j = BigNumber::N_DIGITS - 1; stop && (j >= 0); j--)
+			if (pio.digits[j] != pi.digits[j])
+				stop = false;
+
+		printf("iteración %uª : %u decimales encontrados\n", i + 1,
+				BigNumber::N_FRAC_DIGITS - j - 1);
+
+		if (stop)
 			break;
-		}
+		pi = pio;
 
-		mul(AX, AX, AX); // 2^(2^i)
-		nmuls++;
+		mul(y, y, x1);   // y^2
+		mul(x1, x1, x2); // y^4
+		sub(UNO, x2, x1); // 1 - y^4
 
-		i++;
-		std::cout << ((100 * i) / nbits) << "% completed" << std::endl;
+		/*    Sqrt4BN(x1, x2); // (1 - y^4)^(1/4);
+		 RestaBN(UNO, x2, x1); // (1 - (1 - y^4)^(1/4))
+		 SumaBN(UNO, x2, x3);  // (1 + (1 - y^4)^(1/4))
+		 DivBN(x1, x3, y);     // (1 - (1 - y^4)^(1/4))/(1 + (1 - y^4)^(1/4))*/
+
+		sqrt(x1, x2); // (1 - y^4)^(1/2);
+		sqrt(x2, x1); // (1 - y^4)^(1/4);
+		sub(UNO, x1, x2); // (1 - (1 - y^4)^(1/4))
+		add(UNO, x1, x3);  // (1 + (1 - y^4)^(1/4))
+		div(x2, x3, y);     // (1 - (1 - y^4)^(1/4))/(1 + (1 - y^4)^(1/4))
+
+		add(y, UNO, x1); // (1 + y)
+		mul(x1, x1, x2);  // (1 + y)^2
+		mul(x2, x2, x3);  // (1 + y)^4
+		mul(x3, a, x2);   // (1 + y)^4*a
+
+		add(ACP2, ACP2, ACP2); // 2*ACP2
+		add(ACP2, ACP2, ACP2); // 4*ACP2
+
+		mul(y, y, x3); // y^2
+		add(x1, x3, x1); // (1 + y + y^2)
+		mul(y, x1, x3);     // y*(1 + y + y^2)
+		mul(ACP2, x3, x1); // 2^(2*i + 1)*y*(1 + y + y^2)
+		sub(x2, x1, a); // (1 + y)^4*a - 2^(2*i + 1)*y*(1 + y + y^2)
+
 	}
-
-	BigNumber One = BigNumber("1");
-	sub(X, One, X);
 
 	gettimeofday(&t2, NULL);
 
 	std::cout << "result = ";
-	X.show();
+	pi.show();
+	printf("%u iteraciones para encontrar %u cifras decimales de PI.\n", i,
+			BigNumber::N_FRAC_DIGITS);
 	timersub(&t2, &t1, &t3);
 	elapsed_time = t3.tv_sec + 1e-6 * t3.tv_usec;
 	std::cout << "computation time: " << elapsed_time << " seconds"
 			<< std::endl;
-	std::cout << nmuls << " multiplications and 1 subtraction needed"
-			<< std::endl;
 	std::cout << "dumping result to file '" << fileName << "' ..." << std::endl;
 	std::ofstream file(fileName.c_str());
-	file << "Mersenne prime number 2^" << p << " - 1 = ";
-	X.show(file, 0);
+	file << "PI ~= ";
+	pi.show(file, 0);
 	std::cout << "done." << std::endl;
 
 	destroyPhaseFactors();

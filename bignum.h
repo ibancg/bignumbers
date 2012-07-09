@@ -48,6 +48,10 @@ public:
 
 	~BigNumber();
 
+	// Assignation operator
+	BigNumber& operator=(const BigNumber&);
+
+
 	// Visualization. The parameter threshold configures the limit in number of
 	// digits below which all the digits are shown. If the number of digits is
 	// greater than the threshold, a format like 1274...0246.5162...2134 is
@@ -68,9 +72,6 @@ public:
 
 	// First non-zero digit index.
 	friend int findFirstNonZeroDigitIndex(BigNumber& A);
-
-	// Copies a BN into another
-	friend void copy(BigNumber& A, BigNumber& B);
 
 	// Operations.
 

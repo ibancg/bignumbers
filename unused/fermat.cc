@@ -16,18 +16,18 @@ void main() {
    
   printf("Calculando...\n");
    
-  copy(X1, AX1);
-  copy(X2, AX2);
-  copy(X3, AX3);
+  AX1 = X1;
+  AX2 = X2;
+  AX3 = X3;
  
   for (int i = 1; i < 12; i++) {
 
     mul(AX1, X1, AX);
-    copy(AX, AX1);
+    AX1 = X1;
     mul(AX2, X2, AX);
-    copy(AX, AX2);
+    AX2 = X2;
     mul(AX3, X3, AX);
-    copy(AX, AX3);
+    AX3 = X3;
   }   
    
   add(AX1, AX2, AX);
