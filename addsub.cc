@@ -61,7 +61,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 		}
 
 		if (!M) { //  both numbers have the same module, so the result is 0
-			memset(C.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+			C.clear();
 			C.isPositive = sign;
 			return;
 		}
@@ -121,7 +121,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 		}
 
 		if (!M) { // both numbers have the same module, so the result is 0
-			memset(C.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+			C.clear();
 			C.isPositive = piz;
 			return;
 		}

@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <algorithm>
 
 #include "bignum.h"
 
@@ -30,15 +31,15 @@ using namespace std;
 // that doesn't need any division.
 void inv(const BigNumber &A, BigNumber &B) {
 	static BigNumber x1, x2;
-	static BigNumber two("2");
+	static BigNumber two = 2.0;
 
 # 	ifdef DEBUG
 	cout << "INV";
 	cout.flush();
 #	endif
 
+	B.clear(); // cleaning the result
 	B.isPositive = A.isPositive;
-	memset(B.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t)); // cleaning the result
 
 	int ipc = A.firstNonZeroDigitIndex();
 
@@ -58,7 +59,7 @@ void inv(const BigNumber &A, BigNumber &B) {
 		cout.flush();
 #		endif
 
-		if (equals(B, x1)) // loop until convergence
+		if (B == x1) // loop until convergence
 			break;
 
 		B = x1;
@@ -74,12 +75,13 @@ void inv(const BigNumber &A, BigNumber &B) {
 void divLDA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	int i, j, n;
 	int na = 0, nb = 0, nab;
-	static bcd_t* AA = new bcd_t[BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS];
+	static std::vector<bcd_t> AA(
+			BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS);
 
 	// AA is a shifted copy of A.
-	memcpy(&AA[BigNumber::N_FRAC_DIGITS], A.digits,
-			BigNumber::N_DIGITS * sizeof(bcd_t));
-	memset(AA, 0, BigNumber::N_FRAC_DIGITS * sizeof(bcd_t));
+	copy(A.digits.begin(), A.digits.end(),
+			AA.begin() + BigNumber::N_FRAC_DIGITS);
+	fill(AA.begin(), AA.begin() + BigNumber::N_FRAC_DIGITS - 1, 0);
 
 	for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
 		if ((!na) && (A.digits[i]))
@@ -96,7 +98,7 @@ void divLDA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 		exit(255);
 	}
 
-	memset(C.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+	C.clear();
 	C.isPositive = !(A.isPositive ^ B.isPositive);
 
 	if (nb > na)

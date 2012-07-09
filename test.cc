@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 	struct timeval t1, t2, t3;
 	double elapsed_time;
 
-	BigNumber::N_DIGITS = (1 << 16);
+	BigNumber::N_DIGITS = (1 << 10);
 	BigNumber::N_FRAC_DIGITS = BigNumber::N_DIGITS * 0.99;
 
 	// initialize the fft library

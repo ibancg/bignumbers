@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <algorithm>
 
 #include "bignum.h"
 
@@ -26,13 +27,14 @@ long BigNumber::BigNumber::N_DIGITS = 32; // number of digits in the format.
 long BigNumber::BigNumber::N_FRAC_DIGITS = 16; // number of fractional digits.
 
 // Constructs an empty BN.
-BigNumber::BigNumber() {
-	digits = new bcd_t[BigNumber::N_DIGITS];
-	memset(digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+BigNumber::BigNumber() :
+		digits(BigNumber::N_DIGITS) {
+	fill(digits.begin(), digits.end(), 0);
 	isPositive = true;
 }
 
-BigNumber::BigNumber(const BigNumber& b) {
+BigNumber::BigNumber(const BigNumber& b) :
+		digits(BigNumber::N_DIGITS) {
 	*this = b;
 }
 
@@ -70,39 +72,32 @@ void BigNumber::parse(const char *s) {
 		}
 }
 
-BigNumber::BigNumber(const char *s) {
-	digits = new bcd_t[BigNumber::N_DIGITS];
+BigNumber::BigNumber(const char *s) :
+		digits(BigNumber::N_DIGITS) {
 	parse(s);
 }
 
-BigNumber::BigNumber(double b) {
+BigNumber::BigNumber(double b) :
+		digits(BigNumber::N_DIGITS) {
 	static char buffer[40];
-
 	// prints the number in a string
-	digits = new bcd_t[BigNumber::N_DIGITS];
 	sprintf(buffer, "%20.20f", b);
 	parse(buffer);
 }
 
 // Constructs an empty BN.
 BigNumber::~BigNumber() {
-	delete[] digits;
 }
 
 BigNumber& BigNumber::operator=(const BigNumber& a) {
-
-	if ((digits == 0x0) && (a.digits != 0x0)) {
-		digits = new bcd_t[BigNumber::N_DIGITS];
-	}
-
-	memcpy(digits, a.digits, BigNumber::N_DIGITS * sizeof(bcd_t));
+	digits = a.digits;
 	isPositive = a.isPositive;
 
 	return *this;
 }
 
 void BigNumber::clear() {
-	memset(digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+	fill(digits.begin(), digits.end(), 0);
 	isPositive = true;
 }
 
@@ -217,7 +212,7 @@ int BigNumber::firstNonZeroDigitIndex() const {
 	return -1; // special case: zero
 }
 
-bool equals(const BigNumber &A, const BigNumber &B) {
+bool operator==(const BigNumber &A, const BigNumber &B) {
 	for (register int i = 0; i < BigNumber::N_DIGITS; i++)
 		if (A.digits[i] != B.digits[i])
 			return false;
