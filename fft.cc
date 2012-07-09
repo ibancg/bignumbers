@@ -40,7 +40,8 @@ void destroyPhaseFactors() {
 	delete[] WN;
 }
 
-void fft(std::complex<double>* x, std::complex<double>* X, unsigned long int N,
+void fft(const std::vector<std::complex<double> >& x,
+		std::vector<std::complex<double> >& X, unsigned long int N,
 		unsigned long int offset, unsigned long int d1,
 		unsigned long int step) {
 	std::complex<double> X1, X2;
@@ -77,7 +78,8 @@ void fft(std::complex<double>* x, std::complex<double>* X, unsigned long int N,
 	}
 }
 
-void ifft(std::complex<double>* X, std::complex<double>* x, unsigned long int N,
+void ifft(const std::vector<std::complex<double> >& X,
+		std::vector<std::complex<double> >& x, unsigned long int N,
 		unsigned long int offset, unsigned long int d1,
 		unsigned long int step) {
 	std::complex<double> x1, x2;

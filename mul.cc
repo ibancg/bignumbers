@@ -17,6 +17,8 @@
  */
 
 #include <string.h>
+#include <algorithm>
+#include <vector>
 
 // Multiplication algorithms
 //
@@ -35,10 +37,8 @@
 void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	int i, j;
 	unsigned long int r, c;
-	static bcd_t* R = new bcd_t[BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS];
-
-	memset(R, 0,
-			(BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS) * sizeof(bcd_t));
+	static std::vector<bcd_t> R(BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS);
+	fill(R.begin(), R.end(), 0);
 
 	for (i = 0; i < BigNumber::N_DIGITS; i++) {
 		for (j = 0, c = 0;
@@ -62,8 +62,9 @@ void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	}
 
 	C.isPositive = !(A.isPositive ^ B.isPositive);
-	memcpy(C.digits, &R[BigNumber::N_FRAC_DIGITS],
-			BigNumber::N_DIGITS * sizeof(bcd_t));
+	copy(R.begin() + BigNumber::N_FRAC_DIGITS,
+			R.begin() + BigNumber::N_FRAC_DIGITS + BigNumber::N_DIGITS,
+			C.digits.begin());
 
 //	delete R;
 }
@@ -105,10 +106,8 @@ void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 
 // FFT-based multiplication imlpementation
 void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
-	static std::complex<double>* BC1 =
-			new std::complex<double>[BigNumber::N_DIGITS << 1];
-	static std::complex<double>* BC2 =
-			new std::complex<double>[BigNumber::N_DIGITS << 1];
+	static std::vector<std::complex<double> > BC1(BigNumber::N_DIGITS << 1);
+	static std::vector<std::complex<double> > BC2(BigNumber::N_DIGITS << 1);
 	register int i;
 	std::complex<double> Xi, Xmi, X1, X2, X3;
 
@@ -119,19 +118,20 @@ void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	}
 
 	// cleans the higher section.
-	memset(&BC1[BigNumber::N_DIGITS], 0,
-			BigNumber::N_DIGITS * sizeof(std::complex<double>));
+	fill(BC1.begin() + BigNumber::N_DIGITS,
+			BC1.begin() + BigNumber::N_DIGITS + BigNumber::N_DIGITS, 0);
 
 	// step 2: transform.
 	fft(BC1, BC2, (BigNumber::N_DIGITS << 1));
 
 	// step 3: point-wise multiplication in frequency domain.
+	long mask = ((BigNumber::N_DIGITS << 1) - 1);
 	for (i = 0; i < (BigNumber::N_DIGITS << 1); i++) {
 
 		// we need to extract the individual transformed signals from the
 		// composited one.
 		Xi = BC2[i];
-		Xmi = BC2[(-i) & ((BigNumber::N_DIGITS << 1) - 1)];
+		Xmi = BC2[(-i) & mask];
 		Xmi.imag(-Xmi.imag()); // conjugate
 
 		X1 = Xi + Xmi;

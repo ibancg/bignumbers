@@ -22,6 +22,7 @@
 // Fast Fourier transforms
 
 #include <complex>
+#include <vector>
 
 // initializes the libreary
 void createPhaseFactors();
@@ -31,11 +32,13 @@ void destroyPhaseFactors();
 
 // computes the dft X of the signal x by a fft algorithm. The number of samples
 // N must be a power ot 2.
-void fft(std::complex<double>* x, std::complex<double>* X, unsigned long int N,
+void fft(const std::vector<std::complex<double> >& x,
+		std::vector<std::complex<double> >& X, unsigned long int N,
 		unsigned long int = 0, unsigned long int = 0, unsigned long int = 1);
 
 // computes the inverse fft.
-void ifft(std::complex<double>* X, std::complex<double>* x, unsigned long int N,
+void ifft(const std::vector<std::complex<double> >& X,
+		std::vector<std::complex<double> >& x, unsigned long int N,
 		unsigned long int = 0, unsigned long int = 0, unsigned long int = 1);
 
 #endif

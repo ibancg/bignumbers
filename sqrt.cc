@@ -12,9 +12,9 @@ using namespace std;
 // division in the time-critical loop.
 // A and x NO overlappables.
 void sqrtInv(const BigNumber &A, BigNumber &x) {
-	static BigNumber xo("0");
-	static BigNumber _1p2("0.5");
-	static BigNumber _3("3");
+	static BigNumber xo = 0.0;
+	static BigNumber _1p2 = 0.5;
+	static BigNumber _3 = 3.0;
 
 # ifdef DEBUG
 	cout << "SQRT";
@@ -26,8 +26,7 @@ void sqrtInv(const BigNumber &A, BigNumber &x) {
 		exit(-1);
 	}
 
-	xo.isPositive = true;
-	memset(xo.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
@@ -79,8 +78,7 @@ void sqrtNoInv(const BigNumber &A, BigNumber &x) {
 		exit(-1);
 	}
 
-	xo.isPositive = true;
-	memset(xo.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
@@ -101,7 +99,7 @@ void sqrtNoInv(const BigNumber &A, BigNumber &x) {
 		cout.flush();
 #   endif
 
-		if (equals(x, xo))
+		if (x == xo)
 			break; // convergence.
 	}
 
@@ -137,8 +135,8 @@ void sqrtNoInv(const BigNumber &A, BigNumber &x) {
 // A and x NO overlappables.
 void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 	static BigNumber xo;
-	static BigNumber _1p4("0.25");
-	static BigNumber _5("5");
+	static BigNumber _1p4 = 0.25;
+	static BigNumber _5 = 5.0;
 
 	if (!A.isPositive) {
 		printf("ERROR: complex root.\n");
@@ -150,8 +148,7 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 	cout.flush();
 # endif
 
-	xo.isPositive = true;
-	memset(xo.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
@@ -196,8 +193,7 @@ void sqrt4NoInv(const BigNumber &A, BigNumber &x) {
 		exit(255);
 	}
 
-	xo.isPositive = true;
-	memset(xo.digits, 0, BigNumber::N_DIGITS * sizeof(bcd_t));
+	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
@@ -216,7 +212,7 @@ void sqrt4NoInv(const BigNumber &A, BigNumber &x) {
 		div(Fx, DFx, x2); // F(x)/F'(x)
 		sub(x, x2, xo); // x - F(x)/F'(x)
 
-		if (equals(x, xo))
+		if (x == xo)
 			break; // convergence.
 	}
 

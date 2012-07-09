@@ -26,6 +26,7 @@
 
 #include <ostream>
 #include <iostream>
+#include <vector>
 #include "config.h"
 
 class BigNumber {
@@ -38,7 +39,7 @@ public:
 	static long N_DIGITS; // number of digits in the format.
 	static long N_FRAC_DIGITS; // number of fractional digits.
 
-	bcd_t* digits;
+	std::vector<bcd_t> digits;
 	bool isPositive; // positive/!negative flag
 
 	// Constructors.
@@ -70,7 +71,7 @@ public:
 			int shortNotationDigits = 9) const;
 
 	// Tests if two BNs are equal
-	friend bool equals(const BigNumber& A, const BigNumber& B);
+	friend bool operator==(const BigNumber& A, const BigNumber& B);
 
 	// Compares two BNs and returns the number of coincident digits
 	friend int compare(const BigNumber& A, const BigNumber& B);
