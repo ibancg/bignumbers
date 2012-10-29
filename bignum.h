@@ -19,7 +19,7 @@
 #ifndef __BIGNUMBER_H_
 #define __BIGNUMBER_H_
 
-// Arbitrary-precission fixed-point arithmetic.
+// Arbitrary-precision fixed-point arithmetic.
 //
 // A BCD system with sign and modulus representation and decimal adjustment
 // has been chosen, so each figure represents a decimal digit.
@@ -54,15 +54,16 @@ public:
 
 	~BigNumber();
 
-	// Assignation operator
+	// Assign operator
 	BigNumber& operator=(const BigNumber&);
 
 	// sets to 0
 	void clear();
 
 	double toDouble() const;
+	void fromDouble(double);
 
-	// Visualization. The parameter threshold configures the limit in number of
+	// Visualisation. The parameter threshold configures the limit in number of
 	// digits below which all the digits are shown. If the number of digits is
 	// greater than the threshold, a format like 1274...0246.5162...2134 is
 	// used. When this short notation is used, shortNotationDigits digits are
@@ -73,7 +74,7 @@ public:
 	// Tests if two BNs are equal
 	friend bool operator==(const BigNumber& A, const BigNumber& B);
 
-	// Compares two BNs and returns the number of coincident digits
+	// Compares two BNs and returns the number of mathing digits
 	friend int compare(const BigNumber& A, const BigNumber& B);
 
 	// First non-zero digit index.

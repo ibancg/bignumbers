@@ -21,3 +21,7 @@ syntax: regexp
 ^\.depend$
 syntax: regexp
 ^results/pi-1038083\.txt$
+syntax: regexp
+^Debug$
+syntax: regexp
+^Release$

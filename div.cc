@@ -16,7 +16,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -38,11 +37,14 @@ void inv(const BigNumber &A, BigNumber &B) {
 	cout.flush();
 #	endif
 
-	B.clear(); // cleaning the result
-	B.isPositive = A.isPositive;
 
 	int ipc = A.firstNonZeroDigitIndex();
 
+	B.clear(); // cleaning the result
+	B.isPositive = A.isPositive;
+
+
+	// TODO: improve first guess
 	// if A has order n, 1/A has order -n, so we choose 10^(-n) as a starting
 	// point.
 	B.digits[BigNumber::N_FRAC_DIGITS - (ipc - BigNumber::N_FRAC_DIGITS) - 1] =

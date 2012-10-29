@@ -25,10 +25,10 @@
 #include <vector>
 
 // initializes the libreary
-void createPhaseFactors();
+void createTwiddleFactors();
 
 // deallocate resources
-void destroyPhaseFactors();
+void destroyTwiddleFactors();
 
 // computes the dft X of the signal x by a fft algorithm. The number of samples
 // N must be a power ot 2.

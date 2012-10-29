@@ -25,7 +25,7 @@ std::complex<double>* WN;
 
 // Optimization: computes the phase factor table WN[i] = exp(-j*k), with
 // k = 0..pi (N samples)
-void createPhaseFactors() {
+void createTwiddleFactors() {
 
 	WN = new std::complex<double>[BigNumber::N_DIGITS];
 	double alpha;
@@ -36,7 +36,7 @@ void createPhaseFactors() {
 	}
 }
 
-void destroyPhaseFactors() {
+void destroyTwiddleFactors() {
 	delete[] WN;
 }
 
@@ -49,13 +49,10 @@ void fft(const std::vector<std::complex<double> >& x,
 	register unsigned long int a, b, c, q;
 
 	if (N == 2) { // Butterfly for N = 2;
-
 		X1 = x[offset];
 		X2 = x[offset + step];
-		X[d1].real() = X1.real() + X2.real();
-		X[d1].imag() = X1.imag() + X2.imag(); // X[d1] = X1 + X2
-		X[d1 + Np2].real() = X1.real() - X2.real();
-		X[d1 + Np2].imag() = X1.imag() - X2.imag(); // X[d1 + Np2] = X1 - X2
+		X[d1] = X1 + X2;
+		X[d1 + Np2] = X1 - X2;
 		return;
 	}
 
@@ -68,13 +65,10 @@ void fft(const std::vector<std::complex<double> >& x,
 		b = a + Np2;
 
 		X1 = X[a];
-		X2.real() = X[b].real() * WN[c].real() - X[b].imag() * WN[c].imag();
-		X2.imag() = X[b].real() * WN[c].imag() + X[b].imag() * WN[c].real(); // X2 = X[b]*WN[c]
+		X2 = X[b] * WN[c];
 
-		X[a].real() = X1.real() + X2.real();
-		X[a].imag() = X1.imag() + X2.imag(); // X[a] = X1 + X2
-		X[b].real() = X1.real() - X2.real();
-		X[b].imag() = X1.imag() - X2.imag(); // X[b] = X1 - X2
+		X[a] = X1 + X2;
+		X[b] = X1 - X2;
 	}
 }
 
@@ -91,10 +85,8 @@ void ifft(const std::vector<std::complex<double> >& X,
 
 		x1 = X[offset];
 		x2 = X[offset + step];
-		x[d1].real() = x1.real() + x2.real();
-		x[d1].imag() = x1.imag() + x2.imag(); // x[d1] = x1 + x2
-		x[d1 + Np2].real() = x1.real() - x2.real();
-		x[d1 + Np2].imag() = x1.imag() - x2.imag(); // x[d1 + Np2] = x1 - x2
+		x[d1] = x1 + x2;
+		x[d1 + Np2] = x1 - x2;
 
 		return;
 	}
@@ -111,10 +103,8 @@ void ifft(const std::vector<std::complex<double> >& X,
 		x2.real() = x[b].real() * WN[c].real() + x[b].imag() * WN[c].imag();
 		x2.imag() = x[b].imag() * WN[c].real() - x[b].real() * WN[c].imag(); // x2 = x[b]*WN*[c]
 
-		x[a].real() = x1.real() + x2.real();
-		x[a].imag() = x1.imag() + x2.imag(); // x[a] = x1 + x2
-		x[b].real() = x1.real() - x2.real();
-		x[b].imag() = x1.imag() - x2.imag(); // x[b] = x1 - x2
+		x[a] = x1 + x2;
+		x[b] = x1 - x2;
 	}
 
 	if (step != 1)
@@ -122,7 +112,6 @@ void ifft(const std::vector<std::complex<double> >& X,
 
 	_1pN = 1.0 / N;
 	for (q = 0; q < N; q++) {
-		x[q].real() = x[q].real() * _1pN;
-		x[q].imag() = x[q].imag() * _1pN; // x[q] = x[q]/N
+		x[q] = x[q] * _1pN;
 	}
 }

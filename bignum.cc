@@ -79,10 +79,7 @@ BigNumber::BigNumber(const char *s) :
 
 BigNumber::BigNumber(double b) :
 		digits(BigNumber::N_DIGITS) {
-	static char buffer[40];
-	// prints the number in a string
-	sprintf(buffer, "%20.20f", b);
-	parse(buffer);
+	fromDouble(b);
 }
 
 // Constructs an empty BN.
@@ -126,6 +123,14 @@ double BigNumber::toDouble() const {
 
 	return x;
 }
+
+void BigNumber::fromDouble(double b) {
+	static char buffer[40];
+	// prints the number in a string
+	sprintf(buffer, "%20.20f", b);
+	parse(buffer);
+}
+
 
 void BigNumber::show(std::ostream& ostream, int threshold,
 		int shortNotationDigits) const {
@@ -213,10 +218,7 @@ int BigNumber::firstNonZeroDigitIndex() const {
 }
 
 bool operator==(const BigNumber &A, const BigNumber &B) {
-	for (register int i = 0; i < BigNumber::N_DIGITS; i++)
-		if (A.digits[i] != B.digits[i])
-			return false;
-	return true;
+	return A.digits == B.digits;
 }
 
 int compare(const BigNumber &A, const BigNumber &B) {
