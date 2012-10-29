@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 	BigNumber::N_FRAC_DIGITS = BigNumber::N_DIGITS * 0.99;
 
 	// initialize the fft library
-	createPhaseFactors();
+	createTwiddleFactors();
 
 	gettimeofday(&t1, NULL);
 
@@ -119,5 +119,5 @@ int main(int argc, char *argv[]) {
 	pi.show(file, 0);
 	std::cout << "done." << std::endl;
 
-	destroyPhaseFactors();
+	destroyTwiddleFactors();
 }

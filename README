@@ -10,7 +10,7 @@ DETAILS
 
 The operations implemented in this version are:
 
- - Addition and substraction.
+ - Addition and subtraction.
  - Multiplication
  - Division
  - Square root.
@@ -41,11 +41,12 @@ RUNNING THE TEST PROGRAM
 
 	Usage: bignumber
 
-The program evaluates over one million decimals of PI using a fourth order
-Borwein's algorithm (1985). The result, with 1038090 decimals, will be dumped to
-the file 'output.txt'. The last 7 decimals are incorrect due to precision
-issues (1038083 digits are correct).
+As an application example, the program evaluates over one million decimals of PI
+using a fourth order Borwein's algorithm (1985). The result, with 1038090
+decimals, will be dumped to the file 'output.txt'. The last 7 decimals are
+incorrect due to precision issues (1038083 digits are correct).
 
-Neither the library nor the test program are specially efficient for computing
-decimals of PI. Remember, therefore, that this is just an application example of
-a general purpose library.
+For carrying out the computation, 2^20 N_DIGITS are needed. It can take you 
+near one hour to perform the calculation in a normal computer (2GHz CPU). You
+can try with less digits. For example, you can compute near 32768 (2^15)
+decimals of PI in about 15 seconds.
