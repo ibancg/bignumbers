@@ -25,7 +25,7 @@
 using namespace std;
 
 // Computes the inverse.
-// The problem is equivalent to find a root of the function f(x) = A*x - 1,
+// The problem is equivalent to find a root of the function f(x) = 1/x - 1/A,
 // so we can solve it by Newton's method doing the iteration x = x*(2 - A*x),
 // that doesn't need any division.
 void inv(const BigNumber &A, BigNumber &B) {
@@ -37,18 +37,22 @@ void inv(const BigNumber &A, BigNumber &B) {
 	cout.flush();
 #	endif
 
+	double a;
+	long int aexp;
+	A.toDouble(a, aexp);
+	B.fromDouble(1 / a, -aexp);
 
-	int ipc = A.firstNonZeroDigitIndex();
-
-	B.clear(); // cleaning the result
-	B.isPositive = A.isPositive;
-
-
-	// TODO: improve first guess
-	// if A has order n, 1/A has order -n, so we choose 10^(-n) as a starting
-	// point.
-	B.digits[BigNumber::N_FRAC_DIGITS - (ipc - BigNumber::N_FRAC_DIGITS) - 1] =
-			1;
+	//	int ipc = A.firstNonZeroDigitIndex();
+	//
+	//	B.clear(); // cleaning the result
+	//	B.isPositive = A.isPositive;
+	//
+	//
+	//	// TODO: improve first guess
+	//	// if A has order n, 1/A has order -n, so we choose 10^(-n) as a starting
+	//	// point.
+	//	B.digits[BigNumber::N_FRAC_DIGITS - (ipc - BigNumber::N_FRAC_DIGITS) - 1] =
+	//			1;
 
 	for (int k = 0;; k++) {
 
@@ -101,7 +105,7 @@ void divLDA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	}
 
 	C.clear();
-	C.isPositive = !(A.isPositive ^ B.isPositive);
+	C.positive = !(A.positive ^ B.positive);
 
 	if (nb > na)
 		return;

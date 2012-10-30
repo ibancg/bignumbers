@@ -24,7 +24,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 	char r;
 	char carry = 0;
 
-	if (A.isPositive == B.isPositive) {
+	if (A.positive == B.positive) {
 
 		// same sign case
 
@@ -34,7 +34,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 			C.digits[i] = (r - 10 * carry); // r % 10
 		}
 
-		C.isPositive = A.isPositive;
+		C.positive = A.positive;
 
 	} else {
 
@@ -60,7 +60,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 
 		if (!M) { //  both numbers have the same module, so the result is 0
 			C.clear();
-			C.isPositive = sign;
+			C.positive = sign;
 			return;
 		}
 
@@ -73,7 +73,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 
 		// if the number with higher module is positive, then the result is also
 		// positive.
-		C.isPositive = ((A.isPositive) && (M == &A)) || ((B.isPositive) && (M
+		C.positive = ((A.positive) && (M == &A)) || ((B.positive) && (M
 				== &B));
 	}
 }
@@ -84,7 +84,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 	char r;
 	char carry = 0;
 
-	if (A.isPositive != B.isPositive) {
+	if (A.positive != B.positive) {
 
 		// different sign case
 
@@ -95,7 +95,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 			C.digits[i] = (r - 10 * carry); // r % 10
 		}
 
-		C.isPositive = A.isPositive;
+		C.positive = A.positive;
 	} else {
 
 		// same sign case
@@ -120,7 +120,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 
 		if (!M) { // both numbers have the same module, so the result is 0
 			C.clear();
-			C.isPositive = piz;
+			C.positive = piz;
 			return;
 		}
 
@@ -134,7 +134,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 
 		// if the number with higher module is positive, then the result is also
 		// positive
-		C.isPositive = ((A.isPositive) && (M == &A)) || ((!B.isPositive) && (M
+		C.positive = ((A.positive) && (M == &A)) || ((!B.positive) && (M
 				== &B));
 	}
 }

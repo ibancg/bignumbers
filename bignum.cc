@@ -30,7 +30,7 @@ long BigNumber::N_FRAC_DIGITS = 16; // number of fractional digits.
 BigNumber::BigNumber() :
 		digits(BigNumber::N_DIGITS) {
 	fill(digits.begin(), digits.end(), 0);
-	isPositive = true;
+	positive = true;
 }
 
 BigNumber::BigNumber(const BigNumber& b) :
@@ -40,12 +40,13 @@ BigNumber::BigNumber(const BigNumber& b) :
 
 // Constructs a BN by parsing the string representation
 void BigNumber::parse(const char *s) {
+
 	clear();
 
 	// if the first char is the minus sign, the number is negative
-	isPositive = (*s != '-');
+	positive = (*s != '-');
 
-	if (!isPositive)
+	if (!positive)
 		s++;
 
 	const char *e = strchr(s, 'e');
@@ -88,49 +89,67 @@ BigNumber::~BigNumber() {
 
 BigNumber& BigNumber::operator=(const BigNumber& a) {
 	digits = a.digits;
-	isPositive = a.isPositive;
+	positive = a.positive;
 
 	return *this;
 }
 
 void BigNumber::clear() {
 	fill(digits.begin(), digits.end(), 0);
-	isPositive = true;
+	positive = true;
 }
 
 double BigNumber::toDouble() const {
-	register int i;
 	double x;
+	long int xexp;
+	toDouble(x, xexp);
+	return x * pow10(xexp);
+}
+
+void BigNumber::toDouble(double& x, long int& exp) const {
+	register int i;
 
 	int n = firstNonZeroDigitIndex();
 
 	if (n == -1) {
-		return 0.0;
+		x = 0.0;
+		exp = 0;
+	} else {
+		x = 0.0;
+		i = n;
+		static const int N_SIGNIFICANT_DIGITS = 20;
+		int j = std::max<int>(n - N_SIGNIFICANT_DIGITS, 0);
+		double exponent = 1.0;
+		for (; i >= j; i--) {
+			x += digits[i] * exponent;
+			exponent *= 0.1;
+		}
+		if (!positive) {
+			x = -x;
+		}
+		exp = n - BigNumber::N_FRAC_DIGITS;
 	}
-
-	x = 0.0;
-	static const int N_SIGNIFICANT_DIGITS = 20;
-	i = n - N_SIGNIFICANT_DIGITS + 1;
-	if (i < 0)
-		i = 0;
-
-	double exponent = pow(10, i - BigNumber::N_FRAC_DIGITS);
-
-	for (; i <= n; i++) {
-		x += digits[i] * exponent;
-		exponent *= 10.0;
-	}
-
-	return x;
 }
 
 void BigNumber::fromDouble(double b) {
+	// TODO: do not use strings
 	static char buffer[40];
 	// prints the number in a string
 	sprintf(buffer, "%20.20f", b);
 	parse(buffer);
 }
 
+void BigNumber::fromDouble(double b, long int exp) {
+	// TODO: do not use strings
+	static char buffer[30];
+	// prints the number in a string
+	sprintf(buffer, "%0.20fe%li", b, exp);
+	parse(buffer);
+}
+
+bool BigNumber::isPositive_() const {
+	return positive;
+}
 
 void BigNumber::show(std::ostream& ostream, int threshold,
 		int shortNotationDigits) const {
@@ -139,7 +158,7 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 	long int nf = 0; // number of fractional digits
 	bool z = true;
 
-	if (!isPositive) {
+	if (!positive) {
 		ostream << '-';
 	}
 
@@ -221,7 +240,7 @@ bool operator==(const BigNumber &A, const BigNumber &B) {
 	return A.digits == B.digits;
 }
 
-int compare(const BigNumber &A, const BigNumber &B) {
+int matchingDigits(const BigNumber &A, const BigNumber &B) {
 	for (register int i = BigNumber::N_DIGITS - 1; i >= 0; i--)
 		if (A.digits[i] != B.digits[i])
 			return (BigNumber::N_DIGITS - i);
