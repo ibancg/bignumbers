@@ -64,14 +64,12 @@ int main(int argc, char *argv[]) {
 
 		inv(a, pio);
 
-		// we stop when two consecutive iterants match up
-		for (stop = true, j = BigNumber::N_DIGITS - 1; stop && (j >= 0); j--)
-			if (pio.digits[j] != pi.digits[j])
-				stop = false;
+		j = matchingDigits(pio, pi);
+		stop = (j == BigNumber::N_DIGITS);
 
 		std::cout << "iteration " << (i + 1) << " : "
-				<< (BigNumber::N_FRAC_DIGITS - j - 1) << " decimals found"
-				<< std::endl;
+				<< j - (BigNumber::N_DIGITS - BigNumber::N_FRAC_DIGITS)
+				<< " decimals found" << std::endl;
 
 		if (stop)
 			break;
@@ -81,11 +79,20 @@ int main(int argc, char *argv[]) {
 		mul(x1, x1, x2); // y^4
 		sub(UNO, x2, x1); // 1 - y^4
 
-		sqrt(x1, x2); // (1 - y^4)^(1/2);
-		sqrt(x2, x1); // (1 - y^4)^(1/4);
-		sub(UNO, x1, x2); // (1 - (1 - y^4)^(1/4))
-		add(UNO, x1, x3);  // (1 + (1 - y^4)^(1/4))
-		div(x2, x3, y);     // (1 - (1 - y^4)^(1/4))/(1 + (1 - y^4)^(1/4))
+#define USESQRT4
+
+#ifdef	USESQRT4
+		sqrt4(x1, x2); // (1 - y^4)^(1/4);
+		sub(UNO, x2, x1); // (1 - (1 - y^4)^(1/4))
+		add(UNO, x2, x3);  // (1 + (1 - y^4)^(1/4))
+		div(x1, x3, y);     // (1 - (1 - y^4)^(1/4))/(1 + (1 - y^4)^(1/4))
+#else
+				sqrt(x1, x2); // (1 - y^4)^(1/2);
+				sqrt(x2, x1);// (1 - y^4)^(1/4);
+				sub(UNO, x1, x2);// (1 - (1 - y^4)^(1/4))
+				add(UNO, x1, x3);// (1 + (1 - y^4)^(1/4))
+				div(x2, x3, y);// (1 - (1 - y^4)^(1/4))/(1 + (1 - y^4)^(1/4))
+#endif
 
 		add(y, UNO, x1); // (1 + y)
 		mul(x1, x1, x2);  // (1 + y)^2

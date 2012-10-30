@@ -60,7 +60,7 @@ void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 		}
 	}
 
-	C.isPositive = !(A.isPositive ^ B.isPositive);
+	C.positive = !(A.positive ^ B.positive);
 	copy(R.begin() + BigNumber::N_FRAC_DIGITS,
 			R.begin() + BigNumber::N_FRAC_DIGITS + BigNumber::N_DIGITS,
 			C.digits.begin());
@@ -163,7 +163,7 @@ void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 			C.digits[i - BigNumber::N_FRAC_DIGITS] = (ci - 10 * c); // ci % 10
 	}
 
-	C.isPositive = !(A.isPositive ^ B.isPositive);
+	C.positive = !(A.positive ^ B.positive);
 }
 
 void mul(const BigNumber &A, const BigNumber &B, BigNumber &C) {

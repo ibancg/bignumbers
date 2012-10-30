@@ -32,15 +32,16 @@
 class BigNumber {
 
 private:
+
+	std::vector<bcd_t> digits;
+	bool positive; // positive/!negative flag
+
 	void parse(const char *);
 
 public:
 
 	static long N_DIGITS; // number of digits in the format.
 	static long N_FRAC_DIGITS; // number of fractional digits.
-
-	std::vector<bcd_t> digits;
-	bool isPositive; // positive/!negative flag
 
 	// Constructors.
 
@@ -63,6 +64,11 @@ public:
 	double toDouble() const;
 	void fromDouble(double);
 
+	void toDouble(double&, long int&) const;
+	void fromDouble(double, long int);
+
+	bool isPositive_() const;
+
 	// Visualisation. The parameter threshold configures the limit in number of
 	// digits below which all the digits are shown. If the number of digits is
 	// greater than the threshold, a format like 1274...0246.5162...2134 is
@@ -75,7 +81,7 @@ public:
 	friend bool operator==(const BigNumber& A, const BigNumber& B);
 
 	// Compares two BNs and returns the number of mathing digits
-	friend int compare(const BigNumber& A, const BigNumber& B);
+	friend int matchingDigits(const BigNumber& A, const BigNumber& B);
 
 	// First non-zero digit index.
 	int firstNonZeroDigitIndex() const;
@@ -95,18 +101,25 @@ public:
 	// Computes C = A*B
 	// A, B and C are overlappables
 	friend void mul(const BigNumber& A, const BigNumber& B, BigNumber& C);
+	friend void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C);
+	friend void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C);
 
 	// Computes the inverse of A, B = 1/A
 	friend void inv(const BigNumber& A, BigNumber& B);
 
 	// Computes C = A/B
 	friend void div(const BigNumber& A, const BigNumber& B, BigNumber& C);
+	friend void divLDA(const BigNumber& A, const BigNumber& B, BigNumber& C);
 
 	// Computes the square root
 	friend void sqrt(const BigNumber& A, BigNumber& B);
+	friend void sqrtInv(const BigNumber &A, BigNumber &B);
+	friend void sqrtNoInv(const BigNumber &A, BigNumber &B);
 
 	// Computes the quartic root
 	friend void sqrt4(const BigNumber& A, BigNumber& B);
+	friend void sqrt4Inv(const BigNumber &A, BigNumber &B);
+	friend void sqrt4NoInv(const BigNumber &A, BigNumber &B);
 };
 
 #endif

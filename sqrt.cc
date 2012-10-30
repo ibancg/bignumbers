@@ -20,17 +20,33 @@ void sqrtInv(const BigNumber &A, BigNumber &x) {
 	cout.flush();
 # endif
 
-	if (!A.isPositive) {
+	if (!A.positive) {
 		printf("ERROR: complex root.\n");
 		exit(-1);
 	}
 
+	// TODO: zero
 	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(-n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
 			- (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS + 1) / 2] =
 			1;
+	// TODO: improve first guess
+
+//	double a;
+//	long int aexp;
+//	A.toDouble(a, aexp);
+//	a = sqrt(a);
+//	if (aexp & 1) {
+//		a *= sqrt(10.0);
+//		if (aexp < 0) {
+//			a *= 0.1;
+//		}
+//	}
+//	xo.fromDouble(1.0 / a, -aexp / 2);
+//	cout << "first iterant" << endl;
+//	xo.show();
 
 	for (int k = 0;; k++) {
 
@@ -40,14 +56,14 @@ void sqrtInv(const BigNumber &A, BigNumber &x) {
 		sub(xo, _3, xo, false); // (A*x^2 - 3)
 		mul(_1p2, xo, xo); // 0.5*(A*x^2 - 3)
 		mul(x, xo, xo); // 0.5*x*(A*x^2 - 3)
-		xo.isPositive = !xo.isPositive;
+		xo.positive = !xo.positive;
 
 #   ifdef DEBUG
 		cout << '.';
 		cout.flush();
 #   endif
 
-		if (compare(x, xo) >= (BigNumber::N_DIGITS - 2))
+		if (matchingDigits(x, xo) >= (BigNumber::N_DIGITS - 2))
 			break; // convergence.
 	}
 
@@ -55,10 +71,12 @@ void sqrtInv(const BigNumber &A, BigNumber &x) {
 	cout << endl;
 # endif
 
-	xo.isPositive = true; // rule out the negative solution
+	xo.positive = true; // rule out the negative solution
 
 	// the method has converged to the inverse of the solution 1/sqrt(A). If
 	// we multiply by A, we get A/sqrt(A) = sqrt(A).
+//	cout << "solution" << endl;
+//	xo.show();
 	mul(A, xo, x);
 }
 
@@ -72,16 +90,17 @@ void sqrtNoInv(const BigNumber &A, BigNumber &x) {
 	cout.flush();
 # endif
 
-	if (!A.isPositive) {
+	if (!A.positive) {
 		printf("ERROR: complex root.\n");
 		exit(-1);
 	}
 
 	xo.clear();
 
-	// if A has order n, we start the iteration at 10^(-n/2)
+	// if A has order n, we start the iteration at 10^(n/2)
 	xo.digits[BigNumber::N_FRAC_DIGITS
 			+ (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS) / 2] = 1;
+	// TODO: improve first guess
 
 	for (;;) {
 
@@ -106,11 +125,11 @@ void sqrtNoInv(const BigNumber &A, BigNumber &x) {
 	cout << endl;
 # endif
 
-	x.isPositive = true; // rule out the negative solution
+	x.positive = true; // rule out the negative solution
 
 	// if F(x) <= 0 -> x^2 <= A, we can exit. In other case, we need to
 	// substract 1
-	if (!Fx.isPositive)
+	if (!Fx.positive)
 		return; // F(x) <= 0
 
 	// lets substract 1 from the result.
@@ -137,7 +156,7 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 	static BigNumber _1p4 = 0.25;
 	static BigNumber _5 = 5.0;
 
-	if (!A.isPositive) {
+	if (!A.positive) {
 		printf("ERROR: complex root.\n");
 		exit(255);
 	}
@@ -149,10 +168,11 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 
 	xo.clear();
 
-	// if A has order n, we start the iteration at 10^(-n/2)
+	// if A has order n, we start the iteration at 10^(-n/4)
 	xo.digits[BigNumber::N_FRAC_DIGITS
 			- (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS + 1) / 4] =
 			1;
+	// TODO: improve first guess
 
 	for (int k = 0;; k++) {
 
@@ -163,14 +183,14 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 		sub(xo, _5, xo, false); // (A*x^2 - 5)
 		mul(_1p4, xo, xo); // 0.25*(A*x^4 - 5)
 		mul(x, xo, xo); // 0.25*x*(A*x^4 - 5)
-		xo.isPositive = !xo.isPositive;
+		xo.positive = !xo.positive;
 
 #   ifdef DEBUG
 		cout << '.';
 		cout.flush();
 #   endif
 
-		if (compare(x, xo) >= (BigNumber::N_DIGITS - 2))
+		if (matchingDigits(x, xo) >= (BigNumber::N_DIGITS - 2))
 			break; // convergence.
 	}
 
@@ -178,7 +198,7 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 	cout << endl;
 # endif
 
-	xo.isPositive = true; // rule out the negative solution.
+	xo.positive = true; // rule out the negative solution.
 	inv(xo, x);
 }
 
@@ -187,16 +207,17 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 void sqrt4NoInv(const BigNumber &A, BigNumber &x) {
 	static BigNumber x1, x2, Fx, DFx, xo;
 
-	if (!A.isPositive) {
+	if (!A.positive) {
 		printf("ERROR: complex root.\n");
 		exit(255);
 	}
 
 	xo.clear();
 
-	// if A has order n, we start the iteration at 10^(-n/2)
+	// if A has order n, we start the iteration at 10^(n/4)
 	xo.digits[BigNumber::N_FRAC_DIGITS
 			+ (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS) / 4] = 1;
+	// TODO: improve first guess
 
 	for (;;) {
 
@@ -216,11 +237,11 @@ void sqrt4NoInv(const BigNumber &A, BigNumber &x) {
 	}
 
 	// Por si el método de Newton me converge a la solución negativa
-	x.isPositive = true;
+	x.positive = true;
 
 	// if F(x) <= 0 -> x^2 <= A, we can exit. In other case, we need to
 	// substract 1
-	if (!Fx.isPositive)
+	if (!Fx.positive)
 		return; // F(x) <= 0
 
 	// lets substract 1 from the result.
