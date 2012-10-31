@@ -27,14 +27,15 @@ long BigNumber::N_DIGITS = 32; // number of digits in the format.
 long BigNumber::N_FRAC_DIGITS = 16; // number of fractional digits.
 
 // Constructs an empty BN.
-BigNumber::BigNumber() :
-		digits(BigNumber::N_DIGITS) {
+BigNumber::BigNumber(long int nDigits, long int nFracDigits) :
+		digits(nDigits)  {
 	fill(digits.begin(), digits.end(), 0);
 	positive = true;
+	this->nDigits = nDigits;
+	this->nFracDigits = nFracDigits;
 }
 
-BigNumber::BigNumber(const BigNumber& b) :
-		digits(BigNumber::N_DIGITS) {
+BigNumber::BigNumber(const BigNumber& b) {
 	*this = b;
 }
 
@@ -60,26 +61,30 @@ void BigNumber::parse(const char *s) {
 	unsigned int i;
 
 	for (i = 0; i < dot_index; i++)
-		digits[BigNumber::N_FRAC_DIGITS + dot_index - i - 1 + exponent] = s[i]
+		digits[nFracDigits + dot_index - i - 1 + exponent] = s[i]
 				- 48;
 
 	int index;
 	if (dot_index != ls)
 		for (i = dot_index + 1; i < ls; i++) {
-			index = BigNumber::N_FRAC_DIGITS - (i - dot_index) + exponent;
+			index = nFracDigits - (i - dot_index) + exponent;
 			if (index > 0) {
 				digits[index] = s[i] - 48;
 			}
 		}
 }
 
-BigNumber::BigNumber(const char *s) :
-		digits(BigNumber::N_DIGITS) {
+BigNumber::BigNumber(const char *s, long int nDigits, long int nFracDigits) :
+		digits(nDigits) {
+	this->nDigits = nDigits;
+	this->nFracDigits = nFracDigits;
 	parse(s);
 }
 
-BigNumber::BigNumber(double b) :
-		digits(BigNumber::N_DIGITS) {
+BigNumber::BigNumber(double b, long int nDigits, long int nFracDigits) :
+		digits(nDigits) {
+	this->nDigits = nDigits;
+	this->nFracDigits = nFracDigits;
 	fromDouble(b);
 }
 
@@ -90,6 +95,8 @@ BigNumber::~BigNumber() {
 BigNumber& BigNumber::operator=(const BigNumber& a) {
 	digits = a.digits;
 	positive = a.positive;
+	nDigits = a.nDigits;
+	nFracDigits = a.nFracDigits;
 
 	return *this;
 }
@@ -98,6 +105,17 @@ void BigNumber::clear() {
 	fill(digits.begin(), digits.end(), 0);
 	positive = true;
 }
+
+void BigNumber::resize(long int nDigits, long int nFracDigits) {
+	digits.resize(nDigits);
+	this->nDigits = nDigits;
+	this->nFracDigits = nFracDigits;
+}
+
+void BigNumber::resize(const BigNumber& A) {
+	resize(A.nDigits, A.nFracDigits);
+}
+
 
 double BigNumber::toDouble() const {
 	double x;
@@ -127,7 +145,7 @@ void BigNumber::toDouble(double& x, long int& exp) const {
 		if (!positive) {
 			x = -x;
 		}
-		exp = n - BigNumber::N_FRAC_DIGITS;
+		exp = n - nFracDigits;
 	}
 }
 
@@ -162,9 +180,9 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 		ostream << '-';
 	}
 
-	int firstNonZeroIndex = BigNumber::N_DIGITS;
+	int firstNonZeroIndex = nDigits;
 
-	for (i = BigNumber::N_DIGITS - 1; i >= BigNumber::N_FRAC_DIGITS; i--) {
+	for (i = nDigits - 1; i >= nFracDigits; i--) {
 
 		if (z && (digits[i])) {
 			firstNonZeroIndex = i;
@@ -177,7 +195,7 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 		ni = 0;
 	} else {
 
-		ni = firstNonZeroIndex - BigNumber::N_FRAC_DIGITS + 1;
+		ni = firstNonZeroIndex - nFracDigits + 1;
 		if ((threshold > 0) && (ni > threshold)
 				&& (threshold > 2 * shortNotationDigits)) {
 			for (i = firstNonZeroIndex;
@@ -185,33 +203,33 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 				ostream << (char) (digits[i] + 48);
 			}
 			ostream << "...";
-			for (i = BigNumber::N_FRAC_DIGITS + shortNotationDigits - 1;
-					i >= BigNumber::N_FRAC_DIGITS; i--) {
+			for (i = nFracDigits + shortNotationDigits - 1; i >= nFracDigits;
+					i--) {
 				ostream << (char) (digits[i] + 48);
 			}
 
 		} else {
-			for (i = firstNonZeroIndex; i >= BigNumber::N_FRAC_DIGITS; i--) {
+			for (i = firstNonZeroIndex; i >= nFracDigits; i--) {
 				ostream << (char) (digits[i] + 48);
 			}
 		}
 
 	}
 
-	for (j = 0; j < BigNumber::N_FRAC_DIGITS; j++)
+	for (j = 0; j < nFracDigits; j++)
 		if (digits[j])
 			break;
 
-	nf = BigNumber::N_FRAC_DIGITS - j;
+	nf = nFracDigits - j;
 
 	if (nf > 0) {
 		// decimal part.
 		ostream << '.';
 
-		nf = BigNumber::N_FRAC_DIGITS - j;
+		nf = nFracDigits - j;
 		if ((nf > threshold) && (threshold > 2 * shortNotationDigits)) {
-			for (i = BigNumber::N_FRAC_DIGITS - 1;
-					i >= BigNumber::N_FRAC_DIGITS - shortNotationDigits; i--) {
+			for (i = nFracDigits - 1; i >= nFracDigits - shortNotationDigits;
+					i--) {
 				ostream << (char) (digits[i] + 48);
 			}
 			ostream << "...";
@@ -219,7 +237,7 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 				ostream << (char) (digits[i] + 48);
 			}
 		} else {
-			for (i = BigNumber::N_FRAC_DIGITS - 1; i >= j; i--) {
+			for (i = nFracDigits - 1; i >= j; i--) {
 				ostream << (char) (digits[i] + 48);
 			}
 		}
@@ -230,7 +248,7 @@ void BigNumber::show(std::ostream& ostream, int threshold,
 }
 
 int BigNumber::firstNonZeroDigitIndex() const {
-	for (register int i = BigNumber::N_DIGITS - 1; i >= 0; i--)
+	for (register int i = nDigits - 1; i >= 0; i--)
 		if (digits[i])
 			return i;
 	return -1; // special case: zero
@@ -241,9 +259,43 @@ bool operator==(const BigNumber &A, const BigNumber &B) {
 }
 
 int matchingDigits(const BigNumber &A, const BigNumber &B) {
-	for (register int i = BigNumber::N_DIGITS - 1; i >= 0; i--)
-		if (A.digits[i] != B.digits[i])
-			return (BigNumber::N_DIGITS - i);
+	long int i;
+	for (i = A.nDigits - 1; i >= 0; i--)
+		if (A.digits[i] != B.digits[i]) {
+			return (A.nDigits - i);
+		}
+	return A.nDigits;
+}
 
-	return BigNumber::N_DIGITS;
+bool matchDimensions(const BigNumber& A, const BigNumber& B) {
+	return (A.nDigits == B.nDigits) && (A.nFracDigits == B.nFracDigits);
+}
+
+
+bcd_t BigNumber::operator()(int i) const {
+	return digits[nFracDigits + i];
+}
+
+bcd_t& BigNumber::operator()(int i) {
+	return digits[nFracDigits + i];
+}
+
+bcd_t BigNumber::operator[](int i) const {
+	return digits[i];
+}
+
+bcd_t& BigNumber::operator[](int i) {
+	return digits[i];
+}
+
+long int BigNumber::getNDigits() const {
+	return nDigits;
+}
+
+long int BigNumber::getNFracDigits() const {
+	return nFracDigits;
+}
+
+long int BigNumber::getNIntDigits() const {
+	return nDigits - nFracDigits;
 }

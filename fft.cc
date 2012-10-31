@@ -21,23 +21,22 @@
 #include "bignum.h"
 
 // Phase factors.
-std::complex<double>* WN;
+static std::vector<std::complex<double> > WN;
 
 // Optimization: computes the phase factor table WN[i] = exp(-j*k), with
 // k = 0..pi (N samples)
-void createTwiddleFactors() {
+void createTwiddleFactors(long int N) {
 
-	WN = new std::complex<double>[BigNumber::N_DIGITS];
-	double alpha;
+	if (WN.size() != N) {
+		WN.resize(N);
 
-	for (int i = 0; i < BigNumber::N_DIGITS; i++) {
-		alpha = -i * M_PI / BigNumber::N_DIGITS;
-		WN[i] = std::complex<double>(cos(alpha), sin(alpha));
+		double alpha;
+
+		for (int i = 0; i < N; i++) {
+			alpha = -i * M_PI / N;
+			WN[i] = std::complex<double>(cos(alpha), sin(alpha));
+		}
 	}
-}
-
-void destroyTwiddleFactors() {
-	delete[] WN;
 }
 
 void fft(const std::vector<std::complex<double> >& x,

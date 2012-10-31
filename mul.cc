@@ -36,15 +36,22 @@
 void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	int i, j;
 	unsigned long int r, c;
-	static std::vector<bcd_t> R(BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS);
+	static std::vector<bcd_t> R;
+
+	if (!matchDimensions(A, B) || !matchDimensions(A, C)) {
+		throw std::string("dimensions mismatch");
+	}
+
+	if (R.size() != A.nDigits + A.nFracDigits) {
+		R.resize(A.nDigits + A.nFracDigits);
+	}
+
 	fill(R.begin(), R.end(), 0);
 
-	for (i = 0; i < BigNumber::N_DIGITS; i++) {
+	for (i = 0; i < A.nDigits; i++) {
 		for (j = 0, c = 0;
-				(j < BigNumber::N_DIGITS)
-						&& ((j + i)
-								< (BigNumber::N_DIGITS
-										+ BigNumber::N_FRAC_DIGITS)); j++) {
+				(j < A.nDigits) && ((j + i) < (A.nDigits + A.nFracDigits));
+				j++) {
 
 			r = R[j + i] + c + A.digits[j] * B.digits[i];
 			c = (r / 10);
@@ -52,8 +59,7 @@ void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 		}
 
 		// decimal adjustment
-		for (; (j + i) < (BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS);
-				j++) {
+		for (; (j + i) < (A.nDigits + A.nFracDigits); j++) {
 			r = R[j + i] + c;
 			c = (r / 10);
 			R[j + i] = (r - 10 * c);
@@ -61,8 +67,7 @@ void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	}
 
 	C.positive = !(A.positive ^ B.positive);
-	copy(R.begin() + BigNumber::N_FRAC_DIGITS,
-			R.begin() + BigNumber::N_FRAC_DIGITS + BigNumber::N_DIGITS,
+	copy(R.begin() + A.nFracDigits, R.begin() + A.nFracDigits + A.nDigits,
 			C.digits.begin());
 
 //	delete R;
@@ -105,27 +110,37 @@ void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 
 // FFT-based multiplication imlpementation
 void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
-	static std::vector<std::complex<double> > BC1(BigNumber::N_DIGITS << 1);
-	static std::vector<std::complex<double> > BC2(BigNumber::N_DIGITS << 1);
+	static std::vector<std::complex<double> > BC1;
+	static std::vector<std::complex<double> > BC2;
 	register int i;
 	std::complex<double> Xi, Xmi, X1, X2, X3;
 
+	if (!matchDimensions(A, B) || !matchDimensions(A, C)) {
+		throw std::string("dimensions mismatch");
+	}
+
+	if (BC1.size() != A.nDigits * 2) {
+		BC1.resize(A.nDigits * 2);
+		BC2.resize(A.nDigits * 2);
+	}
+
 	// step 1: building a complex signal with the information of both signals.
-	for (i = 0; i < BigNumber::N_DIGITS; i++) {
+	for (i = 0; i < A.nDigits; i++) {
 		BC1[i].real(A.digits[i]); // real part
 		BC1[i].imag(B.digits[i]); // imaginary part
 	}
 
 	// cleans the higher section.
-	fill(BC1.begin() + BigNumber::N_DIGITS,
-			BC1.begin() + BigNumber::N_DIGITS + BigNumber::N_DIGITS, 0);
+	fill(BC1.begin() + A.nDigits, BC1.begin() + A.nDigits + A.nDigits, 0);
+
+	createTwiddleFactors(A.nDigits);
 
 	// step 2: transform.
-	fft(BC1, BC2, (BigNumber::N_DIGITS << 1));
+	fft(BC1, BC2, (A.nDigits << 1));
 
 	// step 3: point-wise multiplication in frequency domain.
-	long mask = ((BigNumber::N_DIGITS << 1) - 1);
-	for (i = 0; i < (BigNumber::N_DIGITS << 1); i++) {
+	long mask = ((A.nDigits << 1) - 1);
+	for (i = 0; i < (A.nDigits << 1); i++) {
 
 		// we need to extract the individual transformed signals from the
 		// composited one.
@@ -144,14 +159,13 @@ void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	}
 
 	// step 4: inverse transform.
-	ifft(BC1, BC2, (BigNumber::N_DIGITS << 1));
+	ifft(BC1, BC2, (A.nDigits << 1));
 
 	unsigned long int c, ci;
 	double x;
 
 	// step 5: cleaning and BCD adjust.
-	for (i = 0, c = 0; i < BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS;
-			i++) {
+	for (i = 0, c = 0; i < A.nDigits + A.nFracDigits; i++) {
 
 		x = BC2[i].real(); // drops imaginary part.
 
@@ -159,8 +173,8 @@ void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 		ci = (unsigned long int) (c + round(x));
 
 		c = (ci / 10); // carry propagation
-		if (i >= BigNumber::N_FRAC_DIGITS)
-			C.digits[i - BigNumber::N_FRAC_DIGITS] = (ci - 10 * c); // ci % 10
+		if (i >= A.nFracDigits)
+			C.digits[i - A.nFracDigits] = (ci - 10 * c); // ci % 10
 	}
 
 	C.positive = !(A.positive ^ B.positive);
