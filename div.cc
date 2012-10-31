@@ -144,10 +144,14 @@ void divLDA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	}
 }
 
-void div(const BigNumber &A, const BigNumber &B, BigNumber &C) {
-#ifdef INVERSE_DIV_ALGORITHM
+void divInv(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	inv(B, C);
 	mul(A, C, C);
+}
+
+void div(const BigNumber &A, const BigNumber &B, BigNumber &C) {
+#ifdef INVERSE_DIV_ALGORITHM
+	divInv(A, B, C);
 #else
 	divLDA(A, B, C);
 #endif

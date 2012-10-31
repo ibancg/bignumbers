@@ -101,8 +101,8 @@ public:
 	// Computes C = A*B
 	// A, B and C are overlappables
 	friend void mul(const BigNumber& A, const BigNumber& B, BigNumber& C);
-	friend void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C);
-	friend void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C);
+	friend void mulFFT(const BigNumber& A, const BigNumber& B, BigNumber& C);
+	friend void mulLMA(const BigNumber& A, const BigNumber& B, BigNumber& C);
 
 	// Computes the inverse of A, B = 1/A
 	friend void inv(const BigNumber& A, BigNumber& B);
@@ -110,16 +110,17 @@ public:
 	// Computes C = A/B
 	friend void div(const BigNumber& A, const BigNumber& B, BigNumber& C);
 	friend void divLDA(const BigNumber& A, const BigNumber& B, BigNumber& C);
+	friend void divInv(const BigNumber& A, const BigNumber& B, BigNumber& C);
 
 	// Computes the square root
 	friend void sqrt(const BigNumber& A, BigNumber& B);
-	friend void sqrtInv(const BigNumber &A, BigNumber &B);
-	friend void sqrtNoInv(const BigNumber &A, BigNumber &B);
+	friend void sqrtInv(const BigNumber& A, BigNumber& B);
+	friend void sqrtNoInv(const BigNumber& A, BigNumber& B);
 
 	// Computes the quartic root
 	friend void sqrt4(const BigNumber& A, BigNumber& B);
-	friend void sqrt4Inv(const BigNumber &A, BigNumber &B);
-	friend void sqrt4NoInv(const BigNumber &A, BigNumber &B);
+	friend void sqrt4Inv(const BigNumber& A, BigNumber& B);
+	friend void sqrt4NoInv(const BigNumber& A, BigNumber& B);
 };
 
 #endif
