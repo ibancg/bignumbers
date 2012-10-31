@@ -190,8 +190,9 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 		cout.flush();
 #   endif
 
-		if (matchingDigits(x, xo) >= (BigNumber::N_DIGITS - 2))
+		if (matchingDigits(x, xo) >= (BigNumber::N_DIGITS - 2)) {
 			break; // convergence.
+		}
 	}
 
 # ifdef DEBUG
@@ -199,7 +200,12 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 # endif
 
 	xo.positive = true; // rule out the negative solution.
-	inv(xo, x);
+
+	// we don't need to use the inv() function:
+	// x^(1/4) = x^(-1/4 + 1 - 1/4 - 1/4) = x^(-1/4)^3*x = xo^3*x
+	mul(xo, A, x);
+	mul(xo, xo, xo);
+	mul(xo, x, x);
 }
 
 // Quartic root extraction by Newton's method. (F(x) = x^4 - A).

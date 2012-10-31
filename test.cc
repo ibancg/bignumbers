@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 	struct timeval t1, t2, t3;
 	double elapsed_time;
 
-	BigNumber::N_DIGITS = (1 << 20);
+	BigNumber::N_DIGITS = (1 << 15);
 	BigNumber::N_FRAC_DIGITS = BigNumber::N_DIGITS * 0.99;
 
 	// initialize the fft library
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
 	BigNumber UNO = 1.0;
 	BigNumber ACP2 = 2.0; // powers of 2 accumulator.
-	BigNumber y, a, x1, x2, x3, pio;
+	BigNumber y, x1, x2, x3, pio;
 	bool stop;
 	int i, j;
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 	add(x2, x2, x2); // 2*sqrt(2)
 	add(x2, x2, x2); // 4*sqrt(2)
 
-	a = 6.0;
+	BigNumber a = 6.0;
 	sub(a, x2, a);  // a0 = 6 - 4*sqrt(2)
 	std::cout << "...OK" << std::endl;
 
