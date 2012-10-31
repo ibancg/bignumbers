@@ -30,7 +30,18 @@ using namespace std;
 // that doesn't need any division.
 void inv(const BigNumber &A, BigNumber &B) {
 	static BigNumber x1, x2;
-	static BigNumber two = 2.0;
+	static BigNumber two = 2.0; // TODO: remove
+
+	if (!matchDimensions(A, B)) {
+		throw std::string("dimensions mismatch");
+	}
+
+	if (!matchDimensions(x1, A)) {
+		x1.resize(A);
+		x2.resize(A);
+		two.resize(A);
+		two.fromDouble(2.0);
+	}
 
 # 	ifdef DEBUG
 	cout << "INV";
@@ -81,15 +92,22 @@ void inv(const BigNumber &A, BigNumber &B) {
 void divLDA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	int i, j, n;
 	int na = 0, nb = 0, nab;
-	static std::vector<bcd_t> AA(
-			BigNumber::N_DIGITS + BigNumber::N_FRAC_DIGITS);
+	static std::vector<bcd_t> AA;
+
+	if (!matchDimensions(A, B) || !matchDimensions(A, C)) {
+		throw std::string("dimensions mismatch");
+	}
+
+	if (AA.size() != A.nDigits + A.nFracDigits) {
+		AA.resize(A.nDigits + A.nFracDigits);
+	}
 
 	// AA is a shifted copy of A.
 	copy(A.digits.begin(), A.digits.end(),
-			AA.begin() + BigNumber::N_FRAC_DIGITS);
-	fill(AA.begin(), AA.begin() + BigNumber::N_FRAC_DIGITS - 1, 0);
+			AA.begin() + A.nFracDigits);
+	fill(AA.begin(), AA.begin() + A.nFracDigits - 1, 0);
 
-	for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
+	for (i = A.nDigits - 1; i >= 0; i--) {
 		if ((!na) && (A.digits[i]))
 			na = i;
 		if ((!nb) && (B.digits[i]))
@@ -97,7 +115,7 @@ void divLDA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 	}
 
 	// AA is shifted BigNumber::N_FRAC_DIGITS digits.
-	na += BigNumber::N_FRAC_DIGITS;
+	na += A.nFracDigits;
 
 	if (!nb && !B.digits[0]) {
 		printf("ERROR: division by 0\n");

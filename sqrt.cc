@@ -21,17 +21,27 @@ void sqrtInv(const BigNumber &A, BigNumber &x) {
 # endif
 
 	if (!A.positive) {
-		printf("ERROR: complex root.\n");
-		exit(-1);
+		throw std::string("complex root");
+	}
+
+	if (!matchDimensions(A, x)) {
+		throw std::string("dimensions mismatch");
+	}
+
+	if (!matchDimensions(xo, A)) {
+		xo.resize(A);
+		_1p2.resize(A);
+		_3.resize(A);
+		_1p2.fromDouble(0.5);
+		_3.fromDouble(3.0);
 	}
 
 	// TODO: zero
 	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(-n/2)
-	xo.digits[BigNumber::N_FRAC_DIGITS
-			- (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS + 1) / 2] =
-			1;
+	xo.digits[xo.nFracDigits
+			- (A.firstNonZeroDigitIndex() - xo.nFracDigits + 1) / 2] = 1;
 	// TODO: improve first guess
 
 //	double a;
@@ -63,7 +73,7 @@ void sqrtInv(const BigNumber &A, BigNumber &x) {
 		cout.flush();
 #   endif
 
-		if (matchingDigits(x, xo) >= (BigNumber::N_DIGITS - 2))
+		if (matchingDigits(x, xo) >= (x.nDigits - 2))
 			break; // convergence.
 	}
 
@@ -91,15 +101,25 @@ void sqrtNoInv(const BigNumber &A, BigNumber &x) {
 # endif
 
 	if (!A.positive) {
-		printf("ERROR: complex root.\n");
-		exit(-1);
+		throw std::string("complex root");
+	}
+
+	if (!matchDimensions(A, x)) {
+		throw std::string("dimensions mismatch");
+	}
+
+	if (!matchDimensions(xo, A)) {
+		xo.resize(A);
+		x2.resize(A);
+		Fx.resize(A);
+		DFx.resize(A);
 	}
 
 	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(n/2)
-	xo.digits[BigNumber::N_FRAC_DIGITS
-			+ (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS) / 2] = 1;
+	xo.digits[xo.nFracDigits + (A.firstNonZeroDigitIndex() - xo.nFracDigits) / 2] =
+			1;
 	// TODO: improve first guess
 
 	for (;;) {
@@ -157,8 +177,19 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 	static BigNumber _5 = 5.0;
 
 	if (!A.positive) {
-		printf("ERROR: complex root.\n");
-		exit(255);
+		throw std::string("complex root");
+	}
+
+	if (!matchDimensions(A, x)) {
+		throw std::string("dimensions mismatch");
+	}
+
+	if (!matchDimensions(xo, A)) {
+		xo.resize(A);
+		_1p4.resize(A);
+		_5.resize(A);
+		_1p4.fromDouble(0.25);
+		_5.fromDouble(5.0);
 	}
 
 # ifdef DEBUG
@@ -169,9 +200,8 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(-n/4)
-	xo.digits[BigNumber::N_FRAC_DIGITS
-			- (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS + 1) / 4] =
-			1;
+	xo.digits[xo.nFracDigits
+			- (A.firstNonZeroDigitIndex() - xo.nFracDigits + 1) / 4] = 1;
 	// TODO: improve first guess
 
 	for (int k = 0;; k++) {
@@ -190,7 +220,7 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 		cout.flush();
 #   endif
 
-		if (matchingDigits(x, xo) >= (BigNumber::N_DIGITS - 2)) {
+		if (matchingDigits(x, xo) >= (x.nDigits - 2)) {
 			break; // convergence.
 		}
 	}
@@ -214,15 +244,26 @@ void sqrt4NoInv(const BigNumber &A, BigNumber &x) {
 	static BigNumber x1, x2, Fx, DFx, xo;
 
 	if (!A.positive) {
-		printf("ERROR: complex root.\n");
-		exit(255);
+		throw std::string("complex root");
+	}
+
+	if (!matchDimensions(A, x)) {
+		throw std::string("dimensions mismatch");
+	}
+
+	if (!matchDimensions(xo, A)) {
+		xo.resize(A);
+		x1.resize(A);
+		x2.resize(A);
+		Fx.resize(A);
+		DFx.resize(A);
 	}
 
 	xo.clear();
 
 	// if A has order n, we start the iteration at 10^(n/4)
-	xo.digits[BigNumber::N_FRAC_DIGITS
-			+ (A.firstNonZeroDigitIndex() - BigNumber::N_FRAC_DIGITS) / 4] = 1;
+	xo.digits[xo.nFracDigits + (A.firstNonZeroDigitIndex() - xo.nFracDigits) / 4] =
+			1;
 	// TODO: improve first guess
 
 	for (;;) {

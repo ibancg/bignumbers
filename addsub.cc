@@ -28,7 +28,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 
 		// same sign case
 
-		for (i = 0; i < BigNumber::N_DIGITS; i++) {
+		for (i = 0; i < A.nDigits; i++) {
 			r = carry + A.digits[i] + B.digits[i];
 			carry = (r > 9) ? 1 : 0;
 			C.digits[i] = (r - 10 * carry); // r % 10
@@ -43,7 +43,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 		const BigNumber* M = 0x0; // higher module BN
 		const BigNumber* m = 0x0; // lower module BN
 
-		for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
+		for (i = A.nDigits - 1; i >= 0; i--) {
 
 			if (A.digits[i] == B.digits[i])
 				continue;
@@ -65,7 +65,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 		}
 
 		// substracts the lower module number from the higher module one
-		for (i = 0; i < BigNumber::N_DIGITS; i++) {
+		for (i = 0; i < A.nDigits; i++) {
 			r = M->digits[i] - (m->digits[i] + carry);
 			carry = (r < 0) ? 1 : 0;
 			C.digits[i] = (r + 10 * carry);
@@ -73,8 +73,7 @@ void add(const BigNumber &A, const BigNumber &B, BigNumber &C, bool sign) {
 
 		// if the number with higher module is positive, then the result is also
 		// positive.
-		C.positive = ((A.positive) && (M == &A)) || ((B.positive) && (M
-				== &B));
+		C.positive = ((A.positive) && (M == &A)) || ((B.positive) && (M == &B));
 	}
 }
 
@@ -88,7 +87,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 
 		// different sign case
 
-		for (i = 0; i < BigNumber::N_DIGITS; i++) {
+		for (i = 0; i < A.nDigits; i++) {
 
 			r = carry + A.digits[i] + B.digits[i];
 			carry = (r > 9) ? 1 : 0;
@@ -103,7 +102,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 		const BigNumber* M = 0x0; // higher module BN
 		const BigNumber* m = 0x0; // lower module BN
 
-		for (i = BigNumber::N_DIGITS - 1; i >= 0; i--) {
+		for (i = A.nDigits - 1; i >= 0; i--) {
 
 			if (A.digits[i] == B.digits[i])
 				continue;
@@ -125,7 +124,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 		}
 
 		// substracts the lower module number from the higher module one
-		for (i = 0; i < BigNumber::N_DIGITS; i++) {
+		for (i = 0; i < A.nDigits; i++) {
 
 			r = M->digits[i] - (m->digits[i] + carry);
 			carry = (r < 0) ? 1 : 0;
@@ -134,7 +133,7 @@ void sub(const BigNumber &A, const BigNumber &B, BigNumber &C, bool piz) {
 
 		// if the number with higher module is positive, then the result is also
 		// positive
-		C.positive = ((A.positive) && (M == &A)) || ((!B.positive) && (M
-				== &B));
+		C.positive = ((A.positive) && (M == &A))
+						|| ((!B.positive) && (M == &B));
 	}
 }

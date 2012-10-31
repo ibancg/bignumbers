@@ -36,6 +36,9 @@ private:
 	std::vector<bcd_t> digits;
 	bool positive; // positive/!negative flag
 
+	long int nDigits;
+	long int nFracDigits;
+
 	void parse(const char *);
 
 public:
@@ -46,12 +49,15 @@ public:
 	// Constructors.
 
 	// Creates an empty bignumber
-	BigNumber();
+	BigNumber(long int nDigits = N_DIGITS,
+			long int nFracDigits = N_FRAC_DIGITS);
 	BigNumber(const BigNumber&);
 
 	// Creates a bignumber from a string, example: N = BigNumber("-1786.059e36");
-	BigNumber(const char *);
-	BigNumber(double);
+	BigNumber(const char *, long int nDigits = N_DIGITS, long int nFracDigits =
+			N_FRAC_DIGITS);
+	BigNumber(double, long int nDigits = N_DIGITS, long int nFracDigits =
+			N_FRAC_DIGITS);
 
 	~BigNumber();
 
@@ -60,6 +66,9 @@ public:
 
 	// sets to 0
 	void clear();
+	void resize(long int nDigits = N_DIGITS, long int nFracDigits =
+			N_FRAC_DIGITS);
+	void resize(const BigNumber&);
 
 	double toDouble() const;
 	void fromDouble(double);
@@ -83,8 +92,19 @@ public:
 	// Compares two BNs and returns the number of mathing digits
 	friend int matchingDigits(const BigNumber& A, const BigNumber& B);
 
+	friend bool matchDimensions(const BigNumber& A, const BigNumber& B);
+
 	// First non-zero digit index.
 	int firstNonZeroDigitIndex() const;
+
+	bcd_t operator()(int) const;
+	bcd_t& operator()(int);
+	bcd_t operator[](int) const;
+	bcd_t& operator[](int);
+
+	long int getNDigits() const;
+	long int getNFracDigits() const;
+	long int getNIntDigits() const;
 
 	// Operations.
 

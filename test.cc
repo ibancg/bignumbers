@@ -31,11 +31,8 @@ int main(int argc, char *argv[]) {
 	struct timeval t1, t2, t3;
 	double elapsed_time;
 
-	BigNumber::N_DIGITS = (1 << 15);
+	BigNumber::N_DIGITS = (1 << 20);
 	BigNumber::N_FRAC_DIGITS = BigNumber::N_DIGITS * 0.99;
-
-	// initialize the fft library
-	createTwiddleFactors();
 
 	gettimeofday(&t1, NULL);
 
@@ -65,10 +62,10 @@ int main(int argc, char *argv[]) {
 		inv(a, pio);
 
 		j = matchingDigits(pio, pi);
-		stop = (j == BigNumber::N_DIGITS);
+		stop = (j == pi.getNDigits());
 
 		std::cout << "iteration " << (i + 1) << " : "
-				<< j - (BigNumber::N_DIGITS - BigNumber::N_FRAC_DIGITS)
+				<< j - (pi.getNIntDigits())
 				<< " decimals found" << std::endl;
 
 		if (stop)
@@ -114,7 +111,7 @@ int main(int argc, char *argv[]) {
 
 	std::cout << "result = ";
 	pi.show();
-	std::cout << i << " iterations needed to find " << BigNumber::N_FRAC_DIGITS
+	std::cout << i << " iterations needed to find " << pi.getNFracDigits()
 			<< " decimal digits of PI." << std::endl;
 	timersub(&t2, &t1, &t3);
 	elapsed_time = t3.tv_sec + 1e-6 * t3.tv_usec;
@@ -125,6 +122,4 @@ int main(int argc, char *argv[]) {
 	file << "PI ~= ";
 	pi.show(file, 0);
 	std::cout << "done." << std::endl;
-
-	destroyTwiddleFactors();
 }
