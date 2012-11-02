@@ -36,26 +36,23 @@ void sqrtInv(const BigNumber &A, BigNumber &x) {
 		_3.fromDouble(3.0);
 	}
 
-	// TODO: zero
-	xo.clear();
+//	// TODO: zero
+//	xo.clear();
+//
+//	// if A has order n, we start the iteration at 10^(-n/2)
+//	xo.digits[xo.nFracDigits
+//			- (A.firstNonZeroDigitIndex() - xo.nFracDigits + 1) / 2] = 1;
+//	// TODO: improve first guess
 
-	// if A has order n, we start the iteration at 10^(-n/2)
-	xo.digits[xo.nFracDigits
-			- (A.firstNonZeroDigitIndex() - xo.nFracDigits + 1) / 2] = 1;
-	// TODO: improve first guess
+	double a;
+	long int aexp;
+	A.toDouble(a, aexp);
+	a = sqrt(a) * pow(10.0, (aexp % 2) * 0.5);
+	xo.fromDouble(1.0 / a, -aexp / 2);
 
-//	double a;
-//	long int aexp;
-//	A.toDouble(a, aexp);
-//	a = sqrt(a);
-//	if (aexp & 1) {
-//		a *= sqrt(10.0);
-//		if (aexp < 0) {
-//			a *= 0.1;
-//		}
-//	}
-//	xo.fromDouble(1.0 / a, -aexp / 2);
-//	cout << "first iterant" << endl;
+//	std::cout << "first guess " << pow(A.toDouble(), -0.5) << " result "
+//			<< pow(A.toDouble(), 0.5) << std::endl;
+//	std::cout << "first guess ";
 //	xo.show();
 
 	for (int k = 0;; k++) {
@@ -115,12 +112,18 @@ void sqrtNoInv(const BigNumber &A, BigNumber &x) {
 		DFx.resize(A);
 	}
 
-	xo.clear();
-
-	// if A has order n, we start the iteration at 10^(n/2)
-	xo.digits[xo.nFracDigits + (A.firstNonZeroDigitIndex() - xo.nFracDigits) / 2] =
-			1;
+//	xo.clear();
+//
+//	// if A has order n, we start the iteration at 10^(n/2)
+//	xo.digits[xo.nFracDigits + (A.firstNonZeroDigitIndex() - xo.nFracDigits) / 2] =
+//			1;
 	// TODO: improve first guess
+
+	double a;
+	long int aexp;
+	A.toDouble(a, aexp);
+	a = sqrt(a) * pow(10.0, (aexp % 2) * 0.5);
+	xo.fromDouble(1.0 / a, -aexp / 2);
 
 	for (;;) {
 
@@ -197,12 +200,23 @@ void sqrt4Inv(const BigNumber &A, BigNumber &x) {
 	cout.flush();
 # endif
 
-	xo.clear();
+//	xo.clear();
+//
+//	// if A has order n, we start the iteration at 10^(-n/4)
+//	xo.digits[xo.nFracDigits
+//			- (A.firstNonZeroDigitIndex() - xo.nFracDigits + 1) / 4] = 1;
+//	// TODO: improve first guess
 
-	// if A has order n, we start the iteration at 10^(-n/4)
-	xo.digits[xo.nFracDigits
-			- (A.firstNonZeroDigitIndex() - xo.nFracDigits + 1) / 4] = 1;
-	// TODO: improve first guess
+	double a;
+	long int aexp;
+	A.toDouble(a, aexp);
+	a = pow(a, 0.25) * pow(10.0, (aexp % 4) * 0.25);
+	xo.fromDouble(1.0 / a, -aexp / 4);
+
+//	std::cout << "first guess " << pow(A.toDouble(), -0.25) << " result "
+//			<< pow(A.toDouble(), 0.25) << std::endl;
+//	std::cout << "first guess ";
+//	xo.show();
 
 	for (int k = 0;; k++) {
 
@@ -259,12 +273,18 @@ void sqrt4NoInv(const BigNumber &A, BigNumber &x) {
 		DFx.resize(A);
 	}
 
-	xo.clear();
+//	xo.clear();
+//
+//	// if A has order n, we start the iteration at 10^(n/4)
+//	xo.digits[xo.nFracDigits + (A.firstNonZeroDigitIndex() - xo.nFracDigits) / 4] =
+//			1;
+//	// TODO: improve first guess
 
-	// if A has order n, we start the iteration at 10^(n/4)
-	xo.digits[xo.nFracDigits + (A.firstNonZeroDigitIndex() - xo.nFracDigits) / 4] =
-			1;
-	// TODO: improve first guess
+	double a;
+	long int aexp;
+	A.toDouble(a, aexp);
+	a = pow(a, 0.25) * pow(10.0, (aexp % 4) * 0.25);
+	xo.fromDouble(1.0 / a, -aexp / 4);
 
 	for (;;) {
 
