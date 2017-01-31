@@ -42,7 +42,7 @@ void mulLMA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 		throw std::string("dimensions mismatch");
 	}
 
-	if (R.size() != A.nDigits + A.nFracDigits) {
+	if ((long int) R.size() != A.nDigits + A.nFracDigits) {
 		R.resize(A.nDigits + A.nFracDigits);
 	}
 
@@ -119,7 +119,7 @@ void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 		throw std::string("dimensions mismatch");
 	}
 
-	if (BC1.size() != A.nDigits * 2) {
+	if ((long int) BC1.size() != A.nDigits * 2) {
 		BC1.resize(A.nDigits * 2);
 		BC2.resize(A.nDigits * 2);
 	}
@@ -154,8 +154,7 @@ void mulFFT(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 		// now let us multiply sample by sample.
 		X3 = X1 * X2;
 
-		BC1[i].real() = 0.25 * X3.imag();
-		BC1[i].imag() = -0.25 * X3.real();
+		BC1[i] = 0.25 * conj(X3);
 	}
 
 	// step 4: inverse transform.

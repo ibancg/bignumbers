@@ -25,7 +25,7 @@
 #include <vector>
 
 // initializes the libreary
-void createTwiddleFactors(long int N);
+void createTwiddleFactors(unsigned long int N);
 
 // computes the dft X of the signal x by a fft algorithm. The number of samples
 // N must be a power ot 2.

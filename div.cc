@@ -98,7 +98,7 @@ void divLDA(const BigNumber &A, const BigNumber &B, BigNumber &C) {
 		throw std::string("dimensions mismatch");
 	}
 
-	if (AA.size() != A.nDigits + A.nFracDigits) {
+	if ((long int) AA.size() != A.nDigits + A.nFracDigits) {
 		AA.resize(A.nDigits + A.nFracDigits);
 	}
 
